@@ -146,34 +146,33 @@
             inputPrec.focus();
         }
 
-        function cerrarVenta() {
+         function cerrarVenta() {
             if (carrito.length === 0) return;
 
             btnFinalizar.innerText = "⏳ Guardando...";
-            btnFinalizar.classList.add('loading');
+            btnFinalizar.disabled = true;
 
-            const urlScript = "https://script.google.com/macros/s/AKfycbyFUU4iP0EMIvUyzdrz7NKadmsrjq0SStQuDQA-xIr27hXZp9YQfHSp5Hn2huQYf5F5VQ/exec";
+            const urlScript = "TU_NUEVA_URL_AQUÍ"; // <--- PEGA LA URL NUEVA AQUÍ
 
             fetch(urlScript, {
                 method: "POST",
-                mode: "no-cors", // Para evitar errores de seguridad de Google
-                headers: { "Content-Type": "text/plain" },
+                mode: "no-cors", // Crucial para Google Scripts
+                cache: "no-cache",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(carrito)
             })
             .then(() => {
-                alert("Venta guardada con éxito");
+                alert("Venta enviada. Revisa tu Excel.");
                 carrito = [];
                 idVentaActual = Date.now();
                 renderizarCarrito();
             })
             .catch(err => {
-                console.error(err);
-                alert("Hubo un error al conectar con el Excel");
+                alert("Error de red: " + err);
             })
             .finally(() => {
                 btnFinalizar.innerText = "✅ Finalizar Venta";
-                btnFinalizar.classList.remove('loading');
-                inputProd.focus();
+                btnFinalizar.disabled = false;
             });
         }
     </script>
