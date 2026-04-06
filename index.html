@@ -1,42 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuaderno Digital</title>
+    <title>Cuaderno Digital Pro</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; }
-        .item { background: white; padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
-        #total-flotante { font-weight: bold; text-align: right; font-size: 20px; color: #d9534f; margin-top: 10px; }
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --bg: #f4f4f9;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: var(--bg); color: #333; }
+        h2 { text-align: center; color: #444; }
+        
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        
+        input { 
+            width: 100%; padding: 15px; margin: 10px 0; 
+            border: 2px solid #ddd; border-radius: 8px; 
+            font-size: 16px; box-sizing: border-box; transition: border 0.3s;
+        }
+        input:focus { border-color: var(--primary); outline: none; }
+        
+        button { 
+            width: 100%; padding: 15px; border: none; border-radius: 8px; 
+            font-size: 18px; font-weight: bold; cursor: pointer; transition: opacity 0.2s;
+        }
+        button:active { opacity: 0.8; }
+        
+        .item { 
+            background: white; padding: 12px; border-radius: 8px;
+            margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
+            border-left: 5px solid var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .btn-edit { background: var(--warning); color: #333; width: auto; padding: 10px; margin-left: 5px; font-size: 14px; }
+        .btn-del { background: var(--danger); color: white; width: auto; padding: 10px; margin-left: 5px; font-size: 14px; }
+        
+        #total-flotante { 
+            font-weight: bold; text-align: right; font-size: 22px; 
+            color: var(--danger); margin: 15px 0; border-top: 2px solid #ddd; padding-top: 10px;
+        }
+        .loading { opacity: 0.5; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <h2>Nueva Venta</h2>
-    
-    <input type="text" id="producto" list="sugerencias" placeholder="Producto..." autocomplete="off">
-    <datalist id="sugerencias">
-        <option value="Pan">
-        <option value="Bebida 1.5L">
-        <option value="Cigarrillos">
+    <div class="card">
+        <h2>📝 Nueva Venta</h2>
+        
+        <label>Producto:</label>
+        <input type="text" id="producto" list="sugerencias" placeholder="Escribe o selecciona..." autocomplete="off">
+        <datalist id="sugerencias">
+            <option value="Pan">
+            <option value="Bebida 1.5L">
+            <option value="Cigarrillos">
+            <option value="Leche">
+            <option value="Huevos x12">
         </datalist>
 
-    <input type="number" id="precio" placeholder="Precio $" inputmode="numeric">
+        <label>Precio ($):</label>
+        <input type="number" id="precio" placeholder="0" inputmode="numeric">
+        
+        <div id="total-flotante">Total: $0</div>
+        <button onclick="cerrarVenta()" id="btn-finalizar" style="background: var(--primary);">✅ Finalizar Venta</button>
+    </div>
 
-    <div id="total-flotante">Total: $0</div>
-    <div id="lista-actual"></div>
-    <br>
-    <button onclick="cerrarVenta()" id="btn-finalizar" style="background: #007bff;">Cerrar Venta</button>
+    <div id="lista-actual">
+        </div>
 
     <script>
         let carrito = [];
-        let idVentaActual = Date.now(); // ID único basado en el tiempo
+        let idVentaActual = Date.now();
 
         const inputProd = document.getElementById('producto');
         const inputPrec = document.getElementById('precio');
+        const btnFinalizar = document.getElementById('btn-finalizar');
 
-        // ESCUCHADOR: Si selecciona producto, salta al precio
+        // FOCO INICIAL
+        inputProd.focus();
+
+        // SALTO AUTOMÁTICO AL PRECIO
         inputProd.addEventListener('input', () => {
             const opciones = document.querySelectorAll('#sugerencias option');
             for (let opt of opciones) {
@@ -47,44 +93,87 @@
             }
         });
 
-        // ESCUCHADOR: Si presiona Enter en el precio, guarda el ítem
+        // AGREGAR AL PRESIONAR ENTER EN PRECIO
         inputPrec.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 if (inputProd.value && inputPrec.value) {
                     agregarItem(inputProd.value, inputPrec.value);
                     inputProd.value = "";
                     inputPrec.value = "";
-                    inputProd.focus(); // Vuelve al inicio para el siguiente producto
+                    inputProd.focus(); // Vuelve arriba para el siguiente
                 }
             }
         });
 
         function agregarItem(prod, prec) {
-            carrito.push({ producto: prod, precio: parseInt(prec), idVenta: idVentaActual });
+            carrito.push({
+                producto: prod,
+                precio: parseInt(prec),
+                idVenta: idVentaActual
+            });
             renderizarCarrito();
         }
 
         function renderizarCarrito() {
             const lista = document.getElementById('lista-actual');
             const totalDiv = document.getElementById('total-flotante');
-            lista.innerHTML = carrito.map(i => `<div class="item"><span>${i.producto}</span> <span>$${i.precio}</span></div>`).join('');
+            
+            lista.innerHTML = carrito.map((item, index) => `
+                <div class="item">
+                    <div style="flex: 1;">
+                        <strong>${item.producto}</strong><br>
+                        <span>$${item.precio}</span>
+                    </div>
+                    <button class="btn-edit" onclick="editarItem(${index})">✏️</button>
+                    <button class="btn-del" onclick="eliminarItem(${index})">🗑️</button>
+                </div>
+            `).join('');
+
             const total = carrito.reduce((sum, item) => sum + item.precio, 0);
             totalDiv.innerText = `Total: $${total}`;
         }
 
+        function eliminarItem(index) {
+            carrito.splice(index, 1);
+            renderizarCarrito();
+        }
+
+        function editarItem(index) {
+            const item = carrito[index];
+            inputProd.value = item.producto;
+            inputPrec.value = item.precio;
+            eliminarItem(index);
+            inputPrec.focus();
+        }
+
         function cerrarVenta() {
             if (carrito.length === 0) return;
-            
-            const urlScript = "https://script.google.com/macros/s/AKfycbxNyGgn8QSrc61T6eqmr0jFCvuYfx7q635KjEy7PmZYQ8gW0z8lTE8EL7kn9Pfhy7D60A/exec"; // PEGA AQUÍ LA URL DEL PASO 2
-            
+
+            btnFinalizar.innerText = "⏳ Guardando...";
+            btnFinalizar.classList.add('loading');
+
+            const urlScript = "https://script.google.com/macros/s/AKfycbxNyGgn8QSrc61T6eqmr0jFCvuYfx7q635KjEy7PmZYQ8gW0z8lTE8EL7kn9Pfhy7D60A/exec";
+
             fetch(urlScript, {
                 method: "POST",
+                mode: "no-cors", // Para evitar errores de seguridad de Google
+                headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify(carrito)
-            }).then(() => {
-                alert("Venta guardada en Excel");
+            })
+            .then(() => {
+                alert("Venta guardada con éxito");
                 carrito = [];
                 idVentaActual = Date.now();
                 renderizarCarrito();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Hubo un error al conectar con el Excel");
+            })
+            .finally(() => {
+                btnFinalizar.innerText = "✅ Finalizar Venta";
+                btnFinalizar.classList.remove('loading');
+                inputProd.focus();
             });
         }
     </script>
