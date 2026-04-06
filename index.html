@@ -147,34 +147,40 @@
         }
 
          function cerrarVenta() {
-            if (carrito.length === 0) return;
+    if (carrito.length === 0) return;
 
-            btnFinalizar.innerText = "⏳ Guardando...";
-            btnFinalizar.disabled = true;
+    const btn = document.getElementById('btn-finalizar');
+    btn.innerText = "⏳ Guardando...";
+    btn.disabled = true;
 
-            const urlScript = "https://script.google.com/macros/s/AKfycbxiU5WNRgO3zkYqpuG5SO_XnrWW16D98OfyvUXeGGXU93vWmq3E3gh_7PP_sKv7JCU/exec"; // <--- PEGA LA URL NUEVA AQUÍ
+    const urlScript = "https://script.google.com/macros/s/AKfycbxiU5WNRgO3zkYqpuG5SO_XnrWW16D98OfyvUXeGGXU93vWmq3E3gh_7PP_sKv7JCU/exec"; // Asegúrate que termine en /exec
 
-            fetch(urlScript, {
-                method: "POST",
-                mode: "no-cors", // Crucial para Google Scripts
-                cache: "no-cache",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(carrito)
-            })
-            .then(() => {
-                alert("Venta enviada. Revisa tu Excel.");
-                carrito = [];
-                idVentaActual = Date.now();
-                renderizarCarrito();
-            })
-            .catch(err => {
-                alert("Error de red: " + err);
-            })
-            .finally(() => {
-                btnFinalizar.innerText = "✅ Finalizar Venta";
-                btnFinalizar.disabled = false;
-            });
-        }
+    // Usamos una técnica más compatible con los permisos de Google
+    fetch(urlScript, {
+        method: "POST",
+        mode: "no-cors", // Esto es vital para evitar el error de la consola
+        cache: "no-cache",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(carrito)
+    })
+    .then(() => {
+        // Con no-cors no podemos leer la respuesta de Google, 
+        // así que asumimos que llegó si no hay error de red.
+        alert("✅ Venta enviada al cuaderno");
+        carrito = [];
+        idVentaActual = Date.now();
+        renderizarCarrito();
+    })
+    .catch(err => {
+        alert("❌ Error de conexión: " + err);
+    })
+    .finally(() => {
+        btn.innerText = "✅ Finalizar Venta";
+        btn.disabled = false;
+    });
+}
     </script>
 </body>
 </html>
