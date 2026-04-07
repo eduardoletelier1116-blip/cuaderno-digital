@@ -37,13 +37,14 @@
             flex-direction: column;
         }
 
-        /* NAVBAR CON LOGO EN DOS PARTES */
+        /* NAVBAR MEJORADA: ICONO Y TEXTO JUNTOS */
         .navbar {
             background: var(--bg);
             padding: 12px 20px;
             display: flex;
             align-items: center;
-            justify-content: space-between; /* Icono a la izq, Nombre a la der */
+            justify-content: flex-start; /* Todo alineado a la izquierda */
+            gap: 12px; /* Espacio entre cuaderno y texto */
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -51,18 +52,22 @@
             box-shadow: 0 4px 15px rgba(6, 225, 240, 0.1);
         }
 
-        /* Ajuste del Icono (Libro) */
         .img-icono {
-            height: 38px;
+            height: 35px;
             width: auto;
             object-fit: contain;
         }
 
-        /* Ajuste del Nombre (Texto) */
-        .img-nombre {
-            height: 22px; /* Un poco más pequeño que el icono para que se vea elegante */
-            width: auto;
-            object-fit: contain;
+        .logo-texto-custom {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 10px rgba(6, 225, 240, 0.2);
+        }
+
+        .logo-texto-custom span {
+            color: var(--accent);
         }
 
         .container { padding: 20px; flex-grow: 1; }
@@ -129,6 +134,7 @@
             height: 54px;
             font-size: 30px;
             font-weight: bold;
+            cursor: pointer;
         }
 
         .total-actual { text-align: right; font-size: 35px; font-weight: 800; color: var(--accent); margin: 20px 0; }
@@ -202,12 +208,11 @@
     <div class="app-wrapper">
         <div class="navbar">
             <img src="logo-icono.png" alt="FastBook Icono" class="img-icono">
-            
-            <img src="logo-fastbook.png" alt="FastBook" class="img-nombre">
+            <div class="logo-texto-custom"><span>Fast</span>Book</div>
         </div>
 
         <div class="container">
-            <button class="btn-historial" onclick="verHistorial()">🗓️ Ver Bitácora</button>
+            <button class="btn-historial" onclick="verHistorial()">🗓️ Ver Bitácora Agrupada</button>
 
             <div class="card">
                 <h3 style="margin-top:0; color:white; font-size: 18px; margin-bottom: 15px;">🛒 Nueva Venta</h3>
