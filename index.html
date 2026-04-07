@@ -5,55 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuaderno Digital Pro</title>
     <style>
-        body { font-family: sans-serif; padding: 15px; background: #f0f2f5; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 10px; }
-        .stats { background: #007bff; color: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align: center; }
+        body { font-family: sans-serif; padding: 15px; background: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav-btns { display: flex; gap: 10px; margin-bottom: 15px; }
         input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
         button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .btn-save { background: #28a745; color: white; margin-top: 15px; }
-        .item { background: white; padding: 10px; margin-top: 5px; border-radius: 8px; display: flex; justify-content: space-between; border-left: 4px solid #007bff; }
-        .total-actual { text-align: right; font-size: 18px; font-weight: bold; color: #d9534f; margin-top: 10px; }
+        .btn-blue { background: #007bff; color: white; }
+        .btn-green { background: #28a745; color: white; margin-top: 15px; }
+        .btn-gray { background: #6c757d; color: white; }
+        
+        /* Estilos para el Historial */
+        #seccion-historial { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .fila-historial { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #eee; font-size: 18px; }
+        .item-carrito { background: #f8f9fa; padding: 10px; margin-top: 5px; border-radius: 8px; display: flex; justify-content: space-between; border-left: 4px solid #007bff; }
     </style>
 </head>
 <body>
 
-    <div class="stats">
-        <small>Ventas totales del día (en Excel)</small>
-        <div id="venta-dia" style="font-size: 24px; font-weight: bold;">Cargando...</div>
+    <div class="nav-btns">
+        <button class="btn-gray" onclick="abrirHistorial()">📅 Ver Ventas x Día</button>
     </div>
 
-    <div class="card">
+    <div class="card" id="principal">
         <h3>🛒 Nueva Venta</h3>
-        <input type="text" id="producto" list="sugerencias" placeholder="Buscar producto..." autocomplete="off">
+        <input type="text" id="producto" list="sugerencias" placeholder="Producto..." autocomplete="off">
         <datalist id="sugerencias"></datalist>
-
         <input type="number" id="precio" placeholder="Precio $" inputmode="numeric">
         
-        <div class="total-actual" id="total-txt">Total ahora: $0</div>
         <div id="lista-items"></div>
-        
-        <button onclick="cerrarVenta()" id="btn-enviar" class="btn-save">✅ Finalizar Venta</button>
+        <button onclick="cerrarVenta()" id="btn-enviar" class="btn-green">✅ Finalizar Venta</button>
+    </div>
+
+    <div id="seccion-historial">
+        <button class="btn-gray" onclick="cerrarHistorial()">⬅️ Volver</button>
+        <h2>Historial de Ventas</h2>
+        <div id="contenido-historial">Cargando datos...</div>
     </div>
 
     <script>
         let carrito = [];
-        const urlScript = "https://script.google.com/macros/s/AKfycbx2OjrId_QfsMeTMZYG7b82fkxEIzaJnAg6ll38c8_XWbIw17tdfw6mftJOTbOFuvhfyw/exec"; 
+        let datosGlobales = {};
+        const urlScript = "https://script.google.com/macros/s/AKfycbxDOJNJM8N9letOAd0NYnrCT-Cg_KAfzw4UomhIZdPDAYTKk4Hui9xtYumINoiCyESiJg/exec"; 
 
-        const inProd = document.getElementById('producto');
-        const inPrec = document.getElementById('precio');
-        const dataList = document.getElementById('sugerencias');
-
-        // CARGAR DATOS INICIALES (PRODUCTOS Y TOTAL DÍA)
+        // Cargar productos al iniciar
         window.onload = () => {
             fetch(urlScript)
             .then(res => res.json())
             .then(data => {
-                // Llenar buscador predictivo
-                dataList.innerHTML = data.productos.map(p => `<option value="${p}">`).join('');
-                // Mostrar total del día
-                document.getElementById('venta-dia').innerText = `$${data.totalDia}`;
+                datosGlobales = data;
+                document.getElementById('sugerencias').innerHTML = data.productos.map(p => `<option value="${p}">`).join('');
             });
         };
+
+        const inProd = document.getElementById('producto');
+        const inPrec = document.getElementById('precio');
 
         inProd.addEventListener('input', () => {
             const opts = document.querySelectorAll('#sugerencias option');
@@ -63,33 +68,38 @@
         inPrec.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && inProd.value && inPrec.value) {
                 carrito.push({ producto: inProd.value, precio: parseInt(inPrec.value), idVenta: Date.now() });
-                actualizarVista();
+                actualizarCarrito();
                 inProd.value = ""; inPrec.value = ""; inProd.focus();
             }
         });
 
-        function actualizarVista() {
-            const div = document.getElementById('lista-items');
-            div.innerHTML = carrito.map(item => `<div class="item"><span>${item.producto}</span> <span>$${item.precio}</span></div>`).join('');
-            const total = carrito.reduce((s, i) => s + i.precio, 0);
-            document.getElementById('total-txt').innerText = `Total ahora: $${total}`;
+        function actualizarCarrito() {
+            document.getElementById('lista-items').innerHTML = carrito.map(i => `
+                <div class="item-carrito"><span>${i.producto}</span> <strong>$${i.precio}</strong></div>
+            `).join('');
         }
+
+        function abrirHistorial() {
+            document.getElementById('seccion-historial').style.display = 'block';
+            const contenedor = document.getElementById('contenido-historial');
+            
+            if (datosGlobales.historial) {
+                contenedor.innerHTML = datosGlobales.historial.map(h => `
+                    <div class="fila-historial">
+                        <span>${h.fecha}</span>
+                        <strong>$${h.total.toLocaleString()}</strong>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function cerrarHistorial() { document.getElementById('seccion-historial').style.display = 'none'; }
 
         function cerrarVenta() {
             if (carrito.length === 0) return;
-            const btn = document.getElementById('btn-enviar');
-            btn.innerText = "⏳ Guardando...";
-            btn.disabled = true;
-
-            fetch(urlScript, {
-                method: "POST",
-                mode: "no-cors",
-                body: JSON.stringify(carrito)
-            })
-            .then(() => {
-                alert("Venta guardada");
-                location.reload(); 
-            });
+            document.getElementById('btn-enviar').innerText = "Guardando...";
+            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(carrito) })
+            .then(() => location.reload());
         }
     </script>
 </body>
