@@ -3,184 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuaderno Digital Pro</title>
+    <title>Cuaderno Digital</title>
     <style>
-        :root {
-            --primary: #007bff;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --bg: #f4f4f9;
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: var(--bg); color: #333; }
-        h2 { text-align: center; color: #444; }
-        
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        
-        input { 
-            width: 100%; padding: 15px; margin: 10px 0; 
-            border: 2px solid #ddd; border-radius: 8px; 
-            font-size: 16px; box-sizing: border-box; transition: border 0.3s;
-        }
-        input:focus { border-color: var(--primary); outline: none; }
-        
-        button { 
-            width: 100%; padding: 15px; border: none; border-radius: 8px; 
-            font-size: 18px; font-weight: bold; cursor: pointer; transition: opacity 0.2s;
-        }
-        button:active { opacity: 0.8; }
-        
-        .item { 
-            background: white; padding: 12px; border-radius: 8px;
-            margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
-            border-left: 5px solid var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .btn-edit { background: var(--warning); color: #333; width: auto; padding: 10px; margin-left: 5px; font-size: 14px; }
-        .btn-del { background: var(--danger); color: white; width: auto; padding: 10px; margin-left: 5px; font-size: 14px; }
-        
-        #total-flotante { 
-            font-weight: bold; text-align: right; font-size: 22px; 
-            color: var(--danger); margin: 15px 0; border-top: 2px solid #ddd; padding-top: 10px;
-        }
-        .loading { opacity: 0.5; pointer-events: none; }
+        body { font-family: sans-serif; padding: 15px; background: #f0f2f5; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        input:focus { border-color: #007bff; outline: none; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-add { background: #007bff; color: white; margin-top: 5px; }
+        .btn-save { background: #28a745; color: white; margin-top: 20px; font-size: 18px; }
+        .item { background: white; padding: 10px; border-radius: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #007bff; }
+        .total { text-align: right; font-size: 20px; font-weight: bold; color: #d9534f; margin: 10px 0; }
+        .btn-edit { background: #ffc107; width: auto; padding: 8px; margin-left: 5px; }
+        .btn-del { background: #dc3545; color: white; width: auto; padding: 8px; margin-left: 5px; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>📝 Nueva Venta</h2>
-        
-        <label>Producto:</label>
-        <input type="text" id="producto" list="sugerencias" placeholder="Escribe o selecciona..." autocomplete="off">
+        <h3>🛒 Nueva Venta</h3>
+        <input type="text" id="producto" list="sugerencias" placeholder="Nombre del producto..." autocomplete="off">
         <datalist id="sugerencias">
             <option value="Pan">
             <option value="Bebida 1.5L">
             <option value="Cigarrillos">
             <option value="Leche">
-            <option value="Huevos x12">
         </datalist>
 
-        <label>Precio ($):</label>
-        <input type="number" id="precio" placeholder="0" inputmode="numeric">
+        <input type="number" id="precio" placeholder="Precio $" inputmode="numeric">
         
-        <div id="total-flotante">Total: $0</div>
-        <button onclick="cerrarVenta()" id="btn-finalizar" style="background: var(--primary);">✅ Finalizar Venta</button>
+        <div class="total" id="total-txt">Total: $0</div>
+        <div id="lista-items"></div>
+        
+        <button onclick="cerrarVenta()" id="btn-enviar" class="btn-save">✅ Cerrar y Guardar</button>
     </div>
-
-    <div id="lista-actual">
-        </div>
 
     <script>
         let carrito = [];
-        let idVentaActual = Date.now();
+        let idVenta = Date.now();
+        const urlScript = "PEGA_AQUI_TU_NUEVA_URL_DE_APPS_SCRIPT"; 
 
-        const inputProd = document.getElementById('producto');
-        const inputPrec = document.getElementById('precio');
-        const btnFinalizar = document.getElementById('btn-finalizar');
+        const inProd = document.getElementById('producto');
+        const inPrec = document.getElementById('precio');
 
-        // FOCO INICIAL
-        inputProd.focus();
+        // Salto automático al precio
+        inProd.addEventListener('input', () => {
+            const opts = document.querySelectorAll('#sugerencias option');
+            for (let o of opts) { if (o.value === inProd.value) { inPrec.focus(); break; } }
+        });
 
-        // SALTO AUTOMÁTICO AL PRECIO
-        inputProd.addEventListener('input', () => {
-            const opciones = document.querySelectorAll('#sugerencias option');
-            for (let opt of opciones) {
-                if (opt.value === inputProd.value) {
-                    inputPrec.focus();
-                    break;
-                }
+        // Enter para agregar
+        inPrec.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && inProd.value && inPrec.value) {
+                carrito.push({ producto: inProd.value, precio: parseInt(inPrec.value), idVenta: idVenta });
+                actualizarVista();
+                inProd.value = ""; inPrec.value = ""; inProd.focus();
             }
         });
 
-        // AGREGAR AL PRESIONAR ENTER EN PRECIO
-        inputPrec.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                if (inputProd.value && inputPrec.value) {
-                    agregarItem(inputProd.value, inputPrec.value);
-                    inputProd.value = "";
-                    inputPrec.value = "";
-                    inputProd.focus(); // Vuelve arriba para el siguiente
-                }
-            }
-        });
-
-        function agregarItem(prod, prec) {
-            carrito.push({
-                producto: prod,
-                precio: parseInt(prec),
-                idVenta: idVentaActual
-            });
-            renderizarCarrito();
-        }
-
-        function renderizarCarrito() {
-            const lista = document.getElementById('lista-actual');
-            const totalDiv = document.getElementById('total-flotante');
-            
-            lista.innerHTML = carrito.map((item, index) => `
+        function actualizarVista() {
+            const div = document.getElementById('lista-items');
+            div.innerHTML = carrito.map((item, i) => `
                 <div class="item">
-                    <div style="flex: 1;">
-                        <strong>${item.producto}</strong><br>
-                        <span>$${item.precio}</span>
+                    <span>${item.producto} ($${item.precio})</span>
+                    <div>
+                        <button class="btn-edit" onclick="editar(${i})">✏️</button>
+                        <button class="btn-del" onclick="borrar(${i})">🗑️</button>
                     </div>
-                    <button class="btn-edit" onclick="editarItem(${index})">✏️</button>
-                    <button class="btn-del" onclick="eliminarItem(${index})">🗑️</button>
                 </div>
             `).join('');
-
-            const total = carrito.reduce((sum, item) => sum + item.precio, 0);
-            totalDiv.innerText = `Total: $${total}`;
+            const total = carrito.reduce((s, item) => s + item.precio, 0);
+            document.getElementById('total-txt').innerText = `Total: $${total}`;
         }
 
-        function eliminarItem(index) {
-            carrito.splice(index, 1);
-            renderizarCarrito();
+        function borrar(i) { carrito.splice(i, 1); actualizarVista(); }
+
+        function editar(i) {
+            inProd.value = carrito[i].producto;
+            inPrec.value = carrito[i].precio;
+            borrar(i);
+            inPrec.focus();
         }
 
-        function editarItem(index) {
-            const item = carrito[index];
-            inputProd.value = item.producto;
-            inputPrec.value = item.precio;
-            eliminarItem(index);
-            inputPrec.focus();
+        function cerrarVenta() {
+            if (carrito.length === 0) return;
+            const btn = document.getElementById('btn-enviar');
+            btn.innerText = "⏳ Guardando...";
+            btn.disabled = true;
+
+            fetch(urlScript, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify(carrito)
+            })
+            .then(() => {
+                alert("Venta guardada con éxito");
+                carrito = [];
+                idVenta = Date.now();
+                actualizarVista();
+            })
+            .catch(e => alert("Error de red: " + e))
+            .finally(() => {
+                btn.innerText = "✅ Cerrar y Guardar";
+                btn.disabled = false;
+                inProd.focus();
+            });
         }
-
-         function cerrarVenta() {
-    if (carrito.length === 0) return;
-
-    const btn = document.getElementById('btn-finalizar');
-    btn.innerText = "⏳ Guardando...";
-    btn.disabled = true;
-
-    const urlScript = "https://script.google.com/macros/s/AKfycbxiU5WNRgO3zkYqpuG5SO_XnrWW16D98OfyvUXeGGXU93vWmq3E3gh_7PP_sKv7JCU/exec"; // Asegúrate que termine en /exec
-
-    // Usamos una técnica más compatible con los permisos de Google
-    fetch(urlScript, {
-        method: "POST",
-        mode: "no-cors", // Esto es vital para evitar el error de la consola
-        cache: "no-cache",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(carrito)
-    })
-    .then(() => {
-        // Con no-cors no podemos leer la respuesta de Google, 
-        // así que asumimos que llegó si no hay error de red.
-        alert("✅ Venta enviada al cuaderno");
-        carrito = [];
-        idVentaActual = Date.now();
-        renderizarCarrito();
-    })
-    .catch(err => {
-        alert("❌ Error de conexión: " + err);
-    })
-    .finally(() => {
-        btn.innerText = "✅ Finalizar Venta";
-        btn.disabled = false;
-    });
-}
     </script>
 </body>
 </html>
