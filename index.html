@@ -173,7 +173,7 @@
     <script>
         let carrito = [];
         let datosServidor = { productos: [], detalleHoy: [], totalHoy: 0 };
-        const urlScript = "https://script.google.com/macros/s/AKfycbxQkwSQND8cUskyLdz7N4psBmEKcLXxSxwYAwTjgCxiXUNcaKcQQ_tAPHYTym6IdlHqjQ/exec"; 
+        const urlScript = "https://script.google.com/macros/s/AKfycbzulCtstpSbqofKDDnrD3-tCV_cVU2Lkic4SW12hxx1BAHWdIzT0YI4q5GIQ02qWlhm7w/exec"; 
 
         const inProd = document.getElementById('producto');
         const inPrec = document.getElementById('precio');
@@ -236,24 +236,25 @@
 
         function dibujarListaVentas() {
     const lista = document.getElementById('lista-ventas-dia');
-    if (datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
+    // Forzamos que intente dibujar si existen datos
+    if (datosServidor && datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
         lista.innerHTML = datosServidor.detalleHoy.map(v => `
             <div class="venta-dia-item">
                 <div style="display: flex; flex-direction: column;">
                     <span style="color: #64748b; font-size: 11px; font-weight: 600; margin-bottom: 2px;">
-                        🕒 ${v.hora}
+                        🕒 ${v.hora || '--:--'}
                     </span>
                     <span style="font-weight: 500; font-size: 15px; color: #1e293b;">
                         ${v.nombre}
                     </span>
                 </div>
                 <strong style="color: var(--success); font-size: 18px;">
-                    $${v.precio.toLocaleString()}
+                    $${(v.precio || 0).toLocaleString()}
                 </strong>
             </div>
         `).join('');
     } else {
-        lista.innerHTML = "<p style='text-align:center; color:#94a3b8; margin-top:20px;'>No hay ventas registradas</p>";
+        lista.innerHTML = "<p style='text-align:center; color:#94a3b8; margin-top:20px;'>No hay registros recientes</p>";
     }
 }
 
