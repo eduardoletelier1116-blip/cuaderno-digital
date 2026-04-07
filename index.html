@@ -46,7 +46,6 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
-        /* Contenedor para Input + Botón Añadir (Solución iPhone) */
         .input-group {
             display: flex;
             gap: 10px;
@@ -182,14 +181,27 @@
         window.onload = cargarDesdeExcel;
 
         function cargarDesdeExcel() {
-            fetch(urlScript).then(r => r.json()).then(data => {
+            // EL TRUCO PARA IPHONE: Añadimos un parámetro de tiempo para que no use la caché
+            const urlConCacheBuster = urlScript + "?t=" + new Date().getTime();
+            
+            fetch(urlConCacheBuster)
+            .then(r => r.json())
+            .then(data => {
                 datosServidor = data;
                 document.getElementById('sugerencias').innerHTML = data.productos.map(p => `<option value="${p}">`).join('');
                 document.getElementById('caja-total-dia').innerText = `Total en Caja: $${data.totalHoy.toLocaleString()}`;
-            }).catch(e => console.error("Error:", e));
+                
+                // Si la bitácora está abierta, la actualizamos de inmediato
+                if(document.getElementById('pantalla-historial').style.display === 'block') {
+                    dibujarListaVentas();
+                }
+            })
+            .catch(e => {
+                console.error("Error:", e);
+                document.getElementById('lista-ventas-dia').innerHTML = "<p style='text-align:center; color:red;'>Error de conexión</p>";
+            });
         }
 
-        // Función centralizada para añadir productos
         function agregarAlCarrito() {
             if (inProd.value && inPrec.value) {
                 carrito.push({ producto: inProd.value, precio: parseInt(inPrec.value), idVenta: Date.now() });
@@ -205,7 +217,6 @@
             for (let o of opts) { if (o.value === inProd.value) { inPrec.focus(); break; } }
         });
 
-        // Mantiene compatibilidad con Enter para PC y Android
         inPrec.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') { agregarAlCarrito(); }
         });
@@ -219,9 +230,12 @@
         }
 
         function verHistorial() {
-            const pantalla = document.getElementById('pantalla-historial');
+            document.getElementById('pantalla-historial').style.display = 'block';
+            dibujarListaVentas();
+        }
+
+        function dibujarListaVentas() {
             const lista = document.getElementById('lista-ventas-dia');
-            pantalla.style.display = 'block';
             if (datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
                 lista.innerHTML = datosServidor.detalleHoy.map(v => `
                     <div class="venta-dia-item">
@@ -233,8 +247,7 @@
                     </div>
                 `).join('');
             } else {
-                lista.innerHTML = "<p style='text-align:center; color:#94a3b8;'>Cargando ventas...</p>";
-                cargarDesdeExcel();
+                lista.innerHTML = "<p style='text-align:center; color:#94a3b8; margin-top:20px;'>No hay ventas hoy o cargando...</p>";
             }
         }
 
