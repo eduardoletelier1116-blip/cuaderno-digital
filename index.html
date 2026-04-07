@@ -28,7 +28,6 @@
             align-items: center;
         }
 
-        /* Ajuste para que en PC no se vea gigante */
         .app-wrapper {
             width: 100%;
             max-width: 500px;
@@ -37,13 +36,14 @@
             flex-direction: column;
         }
 
-        /* NAVBAR UNIFICADA */
+        /* NAVBAR UNIFICADA - LOGO SEPARADO */
         .navbar {
             background: var(--bg);
             padding: 15px 20px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            /* SEPARACIÓN EXTREMA: IZQUIERDA Y DERECHA */
+            justify-content: space-between; 
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -51,10 +51,25 @@
             box-shadow: 0 4px 15px rgba(6, 225, 240, 0.1);
         }
 
-        .logo-container { display: flex; align-items: center; gap: 12px; }
-        .logo-img { height: 35px; width: auto; }
-        .logo-main-text { font-size: 20px; font-weight: 800; color: white; }
-        .logo-main-text span { color: var(--accent); }
+        /* DIBUJO A LA IZQUIERDA */
+        .logo-img {
+            height: 35px; /* Altura de la navbar */
+            width: auto;
+            /* Asegura que si la imagen trae texto, se intente recortar o ajustar visualmente */
+            object-fit: contain; 
+        }
+
+        /* TEXTO A LA DERECHA */
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: var(--accent); /* El "Fast" en cian */
+        }
 
         .container { padding: 20px; flex-grow: 1; }
 
@@ -66,7 +81,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* BOTONES CON ESTILO GLOW */
         .btn-historial { 
             background: transparent; 
             color: white; 
@@ -84,8 +98,6 @@
             gap: 10px;
             transition: all 0.2s;
         }
-
-        .btn-historial:active { transform: scale(0.98); background: rgba(6, 225, 240, 0.1); }
 
         .btn-green { 
             background: var(--accent); 
@@ -105,9 +117,6 @@
             gap: 10px;
         }
 
-        .btn-green:active { transform: scale(0.98); filter: brightness(1.2); }
-
-        /* INPUTS */
         input { 
             width: 100%; 
             padding: 15px; 
@@ -136,7 +145,6 @@
 
         .total-actual { text-align: right; font-size: 35px; font-weight: 800; color: var(--accent); margin: 20px 0; }
 
-        /* BITÁCORA AGRUPADA */
         #pantalla-historial { 
             display: none; 
             position: fixed; 
@@ -201,29 +209,19 @@
             border: 1px solid var(--accent);
             max-width: 460px;
         }
-
-        /* Estilo para los ítems que se van agregando al carrito */
-        .item-actual {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
     </style>
 </head>
 <body>
 
     <div class="app-wrapper">
         <div class="navbar">
-            <div class="logo-container">
-                <img src="logo-fastbook.png" alt="FastBook" class="logo-img">
-                <div class="logo-main-text"><span>Fast</span>Book</div>
-            </div>
-            <div style="color: #475569; font-size: 12px; font-weight: 600;">v2.1</div>
+            <img src="logo-fastbook.png" alt="Icono" class="logo-img">
+            
+            <div class="logo-text"><span>Fast</span>Book</div>
         </div>
 
         <div class="container">
-            <button class="btn-historial" onclick="verHistorial()">🗓️ Ver Cuaderno</button>
+            <button class="btn-historial" onclick="verHistorial()">🗓️ Ventas de hoy</button>
 
             <div class="card">
                 <h3 style="margin-top:0; color:white; font-size: 18px; margin-bottom: 15px;">🛒 Nueva Venta</h3>
@@ -282,7 +280,7 @@
         function actualizarVista() {
             const lista = document.getElementById('lista-actual');
             lista.innerHTML = carrito.map(i => `
-                <div class="item-actual">
+                <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
                     <span>${i.producto}</span>
                     <strong style="color:var(--accent);">$${i.precio.toLocaleString()}</strong>
                 </div>`).join('');
