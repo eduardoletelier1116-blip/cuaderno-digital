@@ -7,18 +7,23 @@
     <style>
         body { font-family: sans-serif; padding: 15px; background: #f0f2f5; margin: 0; }
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 15px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        .btn-historial { background: #6c757d; color: white; margin-bottom: 15px; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; }
-        .btn-green { background: #28a745; color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 10px; }
-        .item-actual { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; }
-        .total-actual { text-align: right; font-size: 22px; font-weight: bold; color: #d9534f; margin: 10px 0; }
         
-        /* Pantalla Historial */
+        /* Botones e Inputs */
+        input { width: 100%; padding: 15px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .btn-historial { background: #6c757d; color: white; margin-bottom: 15px; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-green { background: #28a745; color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        
+        /* Calculadora Venta Actual */
+        .item-actual { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 16px; }
+        .total-actual { text-align: right; font-size: 24px; font-weight: bold; color: #d9534f; margin: 15px 0; }
+        
+        /* Pantalla Historial (Bitácora) */
         #pantalla-historial { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #fff; z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto; 
         }
-        .venta-dia-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; font-size: 16px; }
+        .venta-dia-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
+        .hora-tag { color: #888; font-size: 11px; display: block; margin-bottom: 2px; }
         .total-dia-caja { background: #333; color: white; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; font-size: 20px; font-weight: bold; }
     </style>
 </head>
@@ -39,21 +44,22 @@
     </div>
 
     <div id="pantalla-historial">
-        <button class="btn-historial" onclick="cerrarHistorial()" style="background: #333;">⬅️ Volver</button>
-        <h2 style="text-align:center;">Ventas Realizadas Hoy</h2>
-        <div class="total-dia-caja" id="caja-total-dia">Total: $0</div>
+        <button class="btn-historial" onclick="cerrarHistorial()" style="background: #333;">⬅️ Volver a Vender</button>
+        <h2 style="text-align:center;">Ventas de Hoy</h2>
+        <div class="total-dia-caja" id="caja-total-dia">Total en Caja: $0</div>
         <div id="lista-ventas-dia"></div>
     </div>
 
     <script>
         let carrito = [];
         let datosServidor = { productos: [], detalleHoy: [], totalHoy: 0 };
-        const urlScript = "https://script.google.com/macros/s/AKfycbxaJpVTqwQlovjy03jxNvqGWkD7wI56Ek4kIn5RJwdKnDiIhfy6x4rPUT9gGILBzcEeLA/exec"; 
+        
+        // TU URL DE GOOGLE APPS SCRIPT
+        const urlScript = "https://script.google.com/macros/s/AKfycbwSe0-irL3MfNVB9hpCTnwp3j_085jUGrh1LiZlkkDMBri--cj1mBSfOjU0fxaoNMLyAw/exec"; 
 
         const inProd = document.getElementById('producto');
         const inPrec = document.getElementById('precio');
 
-        // Cargar datos al abrir la app
         window.onload = cargarDesdeExcel;
 
         function cargarDesdeExcel() {
@@ -61,17 +67,21 @@
             .then(r => r.json())
             .then(data => {
                 datosServidor = data;
+                // Carga productos en el buscador
                 document.getElementById('sugerencias').innerHTML = data.productos.map(p => `<option value="${p}">`).join('');
-                document.getElementById('caja-total-dia').innerText = `Total en Caja: $${data.totalHoy}`;
+                // Carga el total del día en la bitácora
+                document.getElementById('caja-total-dia').innerText = `Total en Caja: $${data.totalHoy.toLocaleString()}`;
             })
             .catch(e => console.error("Error cargando datos:", e));
         }
 
+        // Auto-foco al precio cuando se elige un producto sugerido
         inProd.addEventListener('input', () => {
             const opts = document.querySelectorAll('#sugerencias option');
             for (let o of opts) { if (o.value === inProd.value) { inPrec.focus(); break; } }
         });
 
+        // Agregar al carrito con Enter
         inPrec.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && inProd.value && inPrec.value) {
                 carrito.push({ producto: inProd.value, precio: parseInt(inPrec.value), idVenta: Date.now() });
@@ -82,24 +92,25 @@
 
         function actualizarCalculadora() {
             document.getElementById('lista-actual').innerHTML = carrito.map(i => `
-                <div class="item-actual"><span>${i.producto}</span> <strong>$${i.precio}</strong></div>
+                <div class="item-actual"><span>${i.producto}</span> <strong>$${i.precio.toLocaleString()}</strong></div>
             `).join('');
             const total = carrito.reduce((s, i) => s + i.precio, 0);
-            document.getElementById('txt-total-actual').innerText = `Total: $${total}`;
+            document.getElementById('txt-total-actual').innerText = `Total: $${total.toLocaleString()}`;
         }
 
         function verHistorial() {
             const pantalla = document.getElementById('pantalla-historial');
             const lista = document.getElementById('lista-ventas-dia');
-            
             pantalla.style.display = 'block';
             
-            // Verificamos si hay datos en la bitácora
             if (datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
                 lista.innerHTML = datosServidor.detalleHoy.map(v => `
                     <div class="venta-dia-item">
-                        <span>${v.nombre}</span>
-                        <strong style="color:#28a745;">$${v.precio}</strong>
+                        <div>
+                            <span class="hora-tag">${v.hora || '--:--'}</span>
+                            <span>${v.nombre}</span>
+                        </div>
+                        <strong style="color:#28a745;">$${v.precio.toLocaleString()}</strong>
                     </div>
                 `).join('');
             } else {
@@ -117,8 +128,13 @@
 
             fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(carrito) })
             .then(() => {
-                alert("Venta guardada");
+                alert("Venta guardada con éxito");
                 location.reload(); 
+            })
+            .catch(e => {
+                alert("Error al guardar: " + e);
+                btn.disabled = false;
+                btn.innerText = "✅ Finalizar Venta";
             });
         }
     </script>
