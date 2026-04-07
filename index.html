@@ -4,27 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuaderno Digital Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; padding: 15px; background: #f0f2f5; margin: 0; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        
-        /* Botones e Inputs */
-        input { width: 100%; padding: 15px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        .btn-historial { background: #6c757d; color: white; margin-bottom: 15px; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-green { background: #28a745; color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 10px; cursor: pointer; }
-        
-        /* Calculadora Venta Actual */
-        .item-actual { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 16px; }
-        .total-actual { text-align: right; font-size: 24px; font-weight: bold; color: #d9534f; margin: 15px 0; }
-        
-        /* Pantalla Historial (Bitácora) */
-        #pantalla-historial { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #fff; z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto; 
+        :root {
+            --primary: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --card: #ffffff;
         }
-        .venta-dia-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
-        .hora-tag { color: #888; font-size: 11px; display: block; margin-bottom: 2px; }
-        .total-dia-caja { background: #333; color: white; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; font-size: 20px; font-weight: bold; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            padding: 15px; 
+            background: var(--bg); 
+            margin: 0; 
+            color: var(--text);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .card { 
+            background: var(--card); 
+            padding: 24px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); 
+        }
+
+        h3 { margin-top: 0; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; }
+
+        /* Botones */
+        .btn-historial { 
+            background: var(--primary); 
+            color: white; 
+            margin-bottom: 20px; 
+            width: 100%; 
+            padding: 14px; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            font-size: 15px;
+            cursor: pointer; 
+            transition: transform 0.1s, opacity 0.2s;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-green { 
+            background: var(--success); 
+            color: white; 
+            width: 100%; 
+            padding: 16px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 18px; 
+            font-weight: 700; 
+            margin-top: 20px; 
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .btn-historial:active, .btn-green:active { transform: scale(0.98); }
+
+        /* Inputs */
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 10px 0; 
+            border: 1.5px solid #e2e8f0; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus { border-color: var(--primary); }
+
+        /* Lista Venta Actual */
+        .item-actual { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 12px 0; 
+            border-bottom: 1px solid #f1f5f9; 
+            font-size: 15px;
+        }
+
+        .total-actual { 
+            text-align: right; 
+            font-size: 26px; 
+            font-weight: 800; 
+            color: var(--danger); 
+            margin: 20px 0 10px 0; 
+        }
+
+        /* Pantalla Historial */
+        #pantalla-historial { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: var(--bg); 
+            z-index: 1000; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            overflow-y: auto; 
+        }
+
+        .venta-dia-item { 
+            background: white;
+            margin-bottom: 8px;
+            padding: 14px; 
+            border-radius: 10px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .hora-tag { color: #64748b; font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+        
+        .total-dia-caja { 
+            background: #1e293b; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 14px; 
+            margin: 20px 0; 
+            text-align: center; 
+            font-size: 22px; 
+            font-weight: 700; 
+        }
+
+        .volver-btn { background: #475569 !important; }
     </style>
 </head>
 <body>
@@ -37,15 +147,15 @@
         <datalist id="sugerencias"></datalist>
         <input type="number" id="precio" placeholder="Precio $" inputmode="numeric">
         
-        <div id="lista-actual"></div>
+        <div id="lista-actual" style="margin-top: 15px;"></div>
         <div class="total-actual" id="txt-total-actual">Total: $0</div>
 
         <button onclick="cerrarVenta()" id="btn-enviar" class="btn-green">✅ Finalizar Venta</button>
     </div>
 
     <div id="pantalla-historial">
-        <button class="btn-historial" onclick="cerrarHistorial()" style="background: #333;">⬅️ Volver a Vender</button>
-        <h2 style="text-align:center;">Ventas de Hoy</h2>
+        <button class="btn-historial volver-btn" onclick="cerrarHistorial()">⬅️ Volver a Vender</button>
+        <h2 style="text-align:center; margin-bottom: 5px;">Ventas de Hoy</h2>
         <div class="total-dia-caja" id="caja-total-dia">Total en Caja: $0</div>
         <div id="lista-ventas-dia"></div>
     </div>
@@ -67,21 +177,17 @@
             .then(r => r.json())
             .then(data => {
                 datosServidor = data;
-                // Carga productos en el buscador
                 document.getElementById('sugerencias').innerHTML = data.productos.map(p => `<option value="${p}">`).join('');
-                // Carga el total del día en la bitácora
                 document.getElementById('caja-total-dia').innerText = `Total en Caja: $${data.totalHoy.toLocaleString()}`;
             })
             .catch(e => console.error("Error cargando datos:", e));
         }
 
-        // Auto-foco al precio cuando se elige un producto sugerido
         inProd.addEventListener('input', () => {
             const opts = document.querySelectorAll('#sugerencias option');
             for (let o of opts) { if (o.value === inProd.value) { inPrec.focus(); break; } }
         });
 
-        // Agregar al carrito con Enter
         inPrec.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && inProd.value && inPrec.value) {
                 carrito.push({ producto: inProd.value, precio: parseInt(inPrec.value), idVenta: Date.now() });
@@ -99,50 +205,47 @@
         }
 
         function verHistorial() {
-    const pantalla = document.getElementById('pantalla-historial');
-    const lista = document.getElementById('lista-ventas-dia');
-    pantalla.style.display = 'block';
-    
-    // Usamos los datos que ya cargamos al inicio
-    if (datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
-        lista.innerHTML = datosServidor.detalleHoy.map(v => `
-            <div class="venta-dia-item">
-                <div>
-                    <small style="color: #888; display: block; font-size: 11px;">${v.hora || 'Registrado'}</small>
-                    <span>${v.nombre}</span>
-                </div>
-                <strong style="color:#28a745;">$${v.precio.toLocaleString()}</strong>
-            </div>
-        `).join('');
-    } else {
-        lista.innerHTML = "<p style='text-align:center; color:#999; margin-top:20px;'>Cargando ventas...</p>";
-        // Si por alguna razón está vacío, intentamos recargar una vez
-        cargarDesdeExcel();
-    }
-}
+            const pantalla = document.getElementById('pantalla-historial');
+            const lista = document.getElementById('lista-ventas-dia');
+            pantalla.style.display = 'block';
+            
+            if (datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
+                lista.innerHTML = datosServidor.detalleHoy.map(v => `
+                    <div class="venta-dia-item">
+                        <div>
+                            <span class="hora-tag">${v.hora || 'Registrado'}</span>
+                            <span style="font-weight:500;">${v.nombre}</span>
+                        </div>
+                        <strong style="color:var(--success); font-size: 18px;">$${v.precio.toLocaleString()}</strong>
+                    </div>
+                `).join('');
+            } else {
+                lista.innerHTML = "<p style='text-align:center; color:#94a3b8; margin-top:20px;'>Cargando ventas...</p>";
+                cargarDesdeExcel();
+            }
+        }
 
         function cerrarHistorial() { document.getElementById('pantalla-historial').style.display = 'none'; }
 
         function cerrarVenta() {
-    if (carrito.length === 0) return;
-    const btn = document.getElementById('btn-enviar');
-    btn.innerText = "⏳ Guardando...";
-    btn.disabled = true;
+            if (carrito.length === 0) return;
+            const btn = document.getElementById('btn-enviar');
+            btn.innerText = "⏳ Guardando...";
+            btn.disabled = true;
 
-    fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(carrito) })
-    .then(() => {
-        // En lugar de recargar de inmediato, esperamos un poco
-        setTimeout(() => {
-            alert("Venta guardada");
-            location.reload(); 
-        }, 1500); 
-    })
-    .catch(e => {
-        alert("Error: " + e);
-        btn.disabled = false;
-        btn.innerText = "✅ Finalizar Venta";
-    });
-}
+            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(carrito) })
+            .then(() => {
+                setTimeout(() => {
+                    alert("Venta guardada");
+                    location.reload(); 
+                }, 1500); 
+            })
+            .catch(e => {
+                alert("Error: " + e);
+                btn.disabled = false;
+                btn.innerText = "✅ Finalizar Venta";
+            });
+        }
     </script>
 </body>
 </html>
