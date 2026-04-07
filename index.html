@@ -7,74 +7,71 @@
     <style>
         body { font-family: sans-serif; padding: 15px; background: #f0f2f5; margin: 0; }
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        
-        /* Input y botones */
         input { width: 100%; padding: 15px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        .btn-historial { background: #6c757d; color: white; margin-bottom: 15px; width: 100%; padding: 10px; border: none; border-radius: 8px; font-weight: bold; }
+        .btn-historial { background: #6c757d; color: white; margin-bottom: 15px; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; }
         .btn-green { background: #28a745; color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 10px; }
-        
-        /* Venta Actual (Calculadora) */
-        .calculadora { margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px; }
-        .item-actual { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 15px; }
+        .item-actual { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; }
         .total-actual { text-align: right; font-size: 22px; font-weight: bold; color: #d9534f; margin: 10px 0; }
-
-        /* Pantalla de Historial (Oculta) */
+        
+        /* Pantalla Historial */
         #pantalla-historial { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #fff; z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto; 
         }
-        .venta-dia-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; }
-        .total-dia-caja { background: #333; color: white; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; font-size: 20px; }
+        .venta-dia-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; font-size: 16px; }
+        .total-dia-caja { background: #333; color: white; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; font-size: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <button class="btn-historial" onclick="verHistorial()">📅 Ver Ventas de Hoy (Bitácora)</button>
+    <button class="btn-historial" onclick="verHistorial()">📅 Ver Bitácora de Hoy</button>
 
-    <div class="card" id="app-principal">
+    <div class="card">
         <h3>🛒 Nueva Venta</h3>
         <input type="text" id="producto" list="sugerencias" placeholder="¿Qué vendes?" autocomplete="off">
         <datalist id="sugerencias"></datalist>
         <input type="number" id="precio" placeholder="Precio $" inputmode="numeric">
         
-        <div class="calculadora" id="seccion-actual">
-            <div id="lista-actual"></div>
-            <div class="total-actual" id="txt-total-actual">Total: $0</div>
-        </div>
+        <div id="lista-actual"></div>
+        <div class="total-actual" id="txt-total-actual">Total: $0</div>
 
-        <button onclick="cerrarVenta()" id="btn-enviar" class="btn-green">✅ Finalizar y Guardar</button>
+        <button onclick="cerrarVenta()" id="btn-enviar" class="btn-green">✅ Finalizar Venta</button>
     </div>
 
     <div id="pantalla-historial">
-        <button class="btn-historial" onclick="cerrarHistorial()" style="background: #333;">⬅️ Volver a Vender</button>
-        <h2>Bitácora de Hoy</h2>
-        <div class="total-dia-caja" id="caja-total-dia">Total en Caja: $0</div>
+        <button class="btn-historial" onclick="cerrarHistorial()" style="background: #333;">⬅️ Volver</button>
+        <h2 style="text-align:center;">Ventas Realizadas Hoy</h2>
+        <div class="total-dia-caja" id="caja-total-dia">Total: $0</div>
         <div id="lista-ventas-dia"></div>
     </div>
 
     <script>
         let carrito = [];
-        let datosServidor = {};
-        const urlScript = "https://script.google.com/macros/s/AKfycbzbNmKD3lnShd3prQtykXP_uAPzrszKAhm1nMPpBiNfYDj_yzzEE5HP7VtC0k0CBQKpbQ/exec"; 
+        let datosServidor = { productos: [], detalleHoy: [], totalHoy: 0 };
+        const urlScript = "https://script.google.com/macros/s/AKfycbxYOXAo-7p3b2_VQV3Mt81jfIrLBoIdnjt02VF0vv2E5GgmE1phNk8GguK-lha7dkXJ_A/exec"; 
 
         const inProd = document.getElementById('producto');
         const inPrec = document.getElementById('precio');
 
-        window.onload = () => {
-            fetch(urlScript).then(r => r.json()).then(data => {
+        // Cargar datos al abrir la app
+        window.onload = cargarDesdeExcel;
+
+        function cargarDesdeExcel() {
+            fetch(urlScript)
+            .then(r => r.json())
+            .then(data => {
                 datosServidor = data;
                 document.getElementById('sugerencias').innerHTML = data.productos.map(p => `<option value="${p}">`).join('');
                 document.getElementById('caja-total-dia').innerText = `Total en Caja: $${data.totalHoy}`;
-            });
-        };
+            })
+            .catch(e => console.error("Error cargando datos:", e));
+        }
 
-        // Salto al precio
         inProd.addEventListener('input', () => {
             const opts = document.querySelectorAll('#sugerencias option');
             for (let o of opts) { if (o.value === inProd.value) { inPrec.focus(); break; } }
         });
 
-        // Enter para agregar al carrito actual
         inPrec.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && inProd.value && inPrec.value) {
                 carrito.push({ producto: inProd.value, precio: parseInt(inPrec.value), idVenta: Date.now() });
@@ -92,26 +89,37 @@
         }
 
         function verHistorial() {
-            document.getElementById('pantalla-historial').style.display = 'block';
+            const pantalla = document.getElementById('pantalla-historial');
             const lista = document.getElementById('lista-ventas-dia');
+            
+            pantalla.style.display = 'block';
+            
+            // Verificamos si hay datos en la bitácora
             if (datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
                 lista.innerHTML = datosServidor.detalleHoy.map(v => `
-                    <div class="venta-dia-item"><span>${v.nombre}</span> <strong>$${v.precio}</strong></div>
+                    <div class="venta-dia-item">
+                        <span>${v.nombre}</span>
+                        <strong style="color:#28a745;">$${v.precio}</strong>
+                    </div>
                 `).join('');
             } else {
-                lista.innerHTML = "<p style='text-align:center; color:#999;'>No hay ventas registradas hoy.</p>";
+                lista.innerHTML = "<p style='text-align:center; color:#999; margin-top:20px;'>No hay ventas registradas hoy todavía.</p>";
             }
         }
 
-        function cerrarHistorial() {
-            document.getElementById('pantalla-historial').style.display = 'none';
-        }
+        function cerrarHistorial() { document.getElementById('pantalla-historial').style.display = 'none'; }
 
         function cerrarVenta() {
             if (carrito.length === 0) return;
-            document.getElementById('btn-enviar').innerText = "Guardando...";
+            const btn = document.getElementById('btn-enviar');
+            btn.innerText = "⏳ Guardando...";
+            btn.disabled = true;
+
             fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(carrito) })
-            .then(() => location.reload());
+            .then(() => {
+                alert("Venta guardada");
+                location.reload(); 
+            });
         }
     </script>
 </body>
