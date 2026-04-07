@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FastBook - Sistema de Ventas</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="logo-fastbook.png">
+    
+    <link rel="icon" type="image/png" href="logo-icono.png">
     
     <style>
         :root {
@@ -36,14 +37,13 @@
             flex-direction: column;
         }
 
-        /* NAVBAR UNIFICADA - LOGO SEPARADO */
+        /* NAVBAR CON LOGO EN DOS PARTES */
         .navbar {
             background: var(--bg);
-            padding: 15px 20px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
-            /* SEPARACIÓN EXTREMA: IZQUIERDA Y DERECHA */
-            justify-content: space-between; 
+            justify-content: space-between; /* Icono a la izq, Nombre a la der */
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -51,24 +51,18 @@
             box-shadow: 0 4px 15px rgba(6, 225, 240, 0.1);
         }
 
-        /* DIBUJO A LA IZQUIERDA */
-        .logo-img {
-            height: 35px; /* Altura de la navbar */
+        /* Ajuste del Icono (Libro) */
+        .img-icono {
+            height: 38px;
             width: auto;
-            /* Asegura que si la imagen trae texto, se intente recortar o ajustar visualmente */
-            object-fit: contain; 
+            object-fit: contain;
         }
 
-        /* TEXTO A LA DERECHA */
-        .logo-text {
-            font-size: 20px;
-            font-weight: 800;
-            color: white;
-            letter-spacing: -0.5px;
-        }
-
-        .logo-text span {
-            color: var(--accent); /* El "Fast" en cian */
+        /* Ajuste del Nombre (Texto) */
+        .img-nombre {
+            height: 22px; /* Un poco más pequeño que el icono para que se vea elegante */
+            width: auto;
+            object-fit: contain;
         }
 
         .container { padding: 20px; flex-grow: 1; }
@@ -96,7 +90,6 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            transition: all 0.2s;
         }
 
         .btn-green { 
@@ -111,10 +104,6 @@
             margin-top: 20px; 
             cursor: pointer;
             box-shadow: 0 0 20px rgba(6, 225, 240, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
 
         input { 
@@ -129,7 +118,7 @@
             margin-bottom: 10px;
         }
 
-        input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 10px rgba(6, 225, 240, 0.2); }
+        input:focus { border-color: var(--accent); outline: none; }
 
         .btn-add {
             background: transparent;
@@ -140,7 +129,6 @@
             height: 54px;
             font-size: 30px;
             font-weight: bold;
-            cursor: pointer;
         }
 
         .total-actual { text-align: right; font-size: 35px; font-weight: 800; color: var(--accent); margin: 20px 0; }
@@ -164,8 +152,7 @@
             padding: 18px;
             margin-bottom: 15px;
             max-width: 460px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 0 auto 15px auto;
         }
 
         .grupo-header {
@@ -182,7 +169,6 @@
         .grupo-item {
             display: flex;
             justify-content: space-between;
-            font-size: 15px;
             padding: 5px 0;
             color: #cbd5e1;
         }
@@ -215,13 +201,13 @@
 
     <div class="app-wrapper">
         <div class="navbar">
-            <img src="logo-fastbook.png" alt="Icono" class="logo-img">
+            <img src="logo-icono.png" alt="FastBook Icono" class="img-icono">
             
-            <div class="logo-text"><span>Fast</span>Book</div>
+            <img src="logo-texto.png" alt="FastBook" class="img-nombre">
         </div>
 
         <div class="container">
-            <button class="btn-historial" onclick="verHistorial()">🗓️ Ventas de hoy</button>
+            <button class="btn-historial" onclick="verHistorial()">🗓️ Ver Bitácora</button>
 
             <div class="card">
                 <h3 style="margin-top:0; color:white; font-size: 18px; margin-bottom: 15px;">🛒 Nueva Venta</h3>
@@ -243,7 +229,7 @@
 
     <div id="pantalla-historial">
         <div style="max-width: 500px; margin: 0 auto;">
-            <button class="btn-historial" style="border-color: #475569;" onclick="cerrarHistorial()">⬅️ Volver a Vender</button>
+            <button class="btn-historial" style="border-color: #475569;" onclick="cerrarHistorial()">⬅️ Volver</button>
             <h2 style="text-align:center;">Ventas de Hoy</h2>
             <div class="total-dia-caja" id="caja-total-dia">$0</div>
             <div id="lista-ventas-dia"></div>
@@ -291,8 +277,6 @@
         function verHistorial() {
             document.getElementById('pantalla-historial').style.display = 'block';
             const lista = document.getElementById('lista-ventas-dia');
-            
-            // AGRUPACIÓN POR HORA
             const grupos = {};
             datosServidor.detalleHoy.forEach(v => {
                 const llave = v.hora; 
@@ -316,8 +300,7 @@
                     <div class="grupo-total">Total: $${g.total.toLocaleString()}</div>
                 </div>
             `).join('');
-            
-            lista.innerHTML = html || "<p style='text-align:center;'>No hay registros aún</p>";
+            lista.innerHTML = html || "<p style='text-align:center;'>Sin ventas registradas</p>";
         }
 
         function cerrarHistorial() { document.getElementById('pantalla-historial').style.display = 'none'; }
