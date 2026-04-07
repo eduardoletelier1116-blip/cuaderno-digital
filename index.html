@@ -5,29 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuaderno Digital</title>
     <style>
-        body { font-family: sans-serif; padding: 15px; background: #f0f2f5; color: #333; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        body { font-family: sans-serif; padding: 15px; background: #f0f2f5; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        input:focus { border-color: #007bff; outline: none; }
         button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .btn-add { background: #007bff; color: white; margin-top: 5px; }
-        .btn-save { background: #28a745; color: white; margin-top: 20px; font-size: 18px; }
-        .item { background: white; padding: 10px; border-radius: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #007bff; }
+        .btn-save { background: #28a745; color: white; margin-top: 20px; }
+        .item { background: #fff; padding: 10px; margin-top: 5px; border-radius: 8px; display: flex; justify-content: space-between; border-left: 4px solid #007bff; shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .total { text-align: right; font-size: 20px; font-weight: bold; color: #d9534f; margin: 10px 0; }
-        .btn-edit { background: #ffc107; width: auto; padding: 8px; margin-left: 5px; }
-        .btn-del { background: #dc3545; color: white; width: auto; padding: 8px; margin-left: 5px; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h3>🛒 Nueva Venta</h3>
-        <input type="text" id="producto" list="sugerencias" placeholder="Nombre del producto..." autocomplete="off">
+        <input type="text" id="producto" list="sugerencias" placeholder="Producto..." autocomplete="off">
         <datalist id="sugerencias">
             <option value="Pan">
             <option value="Bebida 1.5L">
             <option value="Cigarrillos">
-            <option value="Leche">
         </datalist>
 
         <input type="number" id="precio" placeholder="Precio $" inputmode="numeric">
@@ -35,13 +30,14 @@
         <div class="total" id="total-txt">Total: $0</div>
         <div id="lista-items"></div>
         
-        <button onclick="cerrarVenta()" id="btn-enviar" class="btn-save">✅ Cerrar y Guardar</button>
+        <button onclick="cerrarVenta()" id="btn-enviar" class="btn-save">✅ Guardar Venta</button>
     </div>
 
     <script>
         let carrito = [];
         let idVenta = Date.now();
-        const urlScript = "https://script.google.com/macros/s/AKfycbxPdUQyekTj4PwKkmqdy8BfBAC5RWMhiqFdxDCo-LSlY6T3o-rcXGQJ8NtWz-FXY5PeUw/exec"; 
+        // REEMPLAZA ESTA URL CON LA TUYA NUEVA
+        const urlScript = "https://script.google.com/macros/s/AKfycbwA0Ts37DQn6ASAW5XWrxnQLiVMmA-ddgJ-aOYvs98mjoaTfcigUgcrR1JZarls4kFBPg/exec"; 
 
         const inProd = document.getElementById('producto');
         const inPrec = document.getElementById('precio');
@@ -52,38 +48,19 @@
             for (let o of opts) { if (o.value === inProd.value) { inPrec.focus(); break; } }
         });
 
-        // Enter para agregar
+        // Enter para agregar a la lista
         inPrec.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && inProd.value && inPrec.value) {
                 carrito.push({ producto: inProd.value, precio: parseInt(inPrec.value), idVenta: idVenta });
-                actualizarVista();
+                const div = document.getElementById('lista-items');
+                div.innerHTML = carrito.map(item => `<div class="item"><span>${item.producto}</span> <span>$${item.precio}</span></div>`).join('');
+                
+                const total = carrito.reduce((s, i) => s + i.precio, 0);
+                document.getElementById('total-txt').innerText = `Total: $${total}`;
+                
                 inProd.value = ""; inPrec.value = ""; inProd.focus();
             }
         });
-
-        function actualizarVista() {
-            const div = document.getElementById('lista-items');
-            div.innerHTML = carrito.map((item, i) => `
-                <div class="item">
-                    <span>${item.producto} ($${item.precio})</span>
-                    <div>
-                        <button class="btn-edit" onclick="editar(${i})">✏️</button>
-                        <button class="btn-del" onclick="borrar(${i})">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
-            const total = carrito.reduce((s, item) => s + item.precio, 0);
-            document.getElementById('total-txt').innerText = `Total: $${total}`;
-        }
-
-        function borrar(i) { carrito.splice(i, 1); actualizarVista(); }
-
-        function editar(i) {
-            inProd.value = carrito[i].producto;
-            inPrec.value = carrito[i].precio;
-            borrar(i);
-            inPrec.focus();
-        }
 
         function cerrarVenta() {
             if (carrito.length === 0) return;
@@ -97,16 +74,13 @@
                 body: JSON.stringify(carrito)
             })
             .then(() => {
-                alert("Venta guardada con éxito");
-                carrito = [];
-                idVenta = Date.now();
-                actualizarVista();
+                alert("Venta enviada");
+                location.reload(); // Recarga para limpiar todo
             })
-            .catch(e => alert("Error de red: " + e))
+            .catch(e => alert("Error: " + e))
             .finally(() => {
-                btn.innerText = "✅ Cerrar y Guardar";
                 btn.disabled = false;
-                inProd.focus();
+                btn.innerText = "✅ Guardar Venta";
             });
         }
     </script>
