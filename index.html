@@ -235,21 +235,27 @@
         }
 
         function dibujarListaVentas() {
-            const lista = document.getElementById('lista-ventas-dia');
-            if (datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
-                lista.innerHTML = datosServidor.detalleHoy.map(v => `
-                    <div class="venta-dia-item">
-                        <div>
-                            <span style="color:#64748b; font-size:12px; font-weight:600; display:block;">${v.hora || 'Registrado'}</span>
-                            <span style="font-weight:500;">${v.nombre}</span>
-                        </div>
-                        <strong style="color:var(--success); font-size: 18px;">$${v.precio.toLocaleString()}</strong>
-                    </div>
-                `).join('');
-            } else {
-                lista.innerHTML = "<p style='text-align:center; color:#94a3b8; margin-top:20px;'>No hay ventas hoy o cargando...</p>";
-            }
-        }
+    const lista = document.getElementById('lista-ventas-dia');
+    if (datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
+        lista.innerHTML = datosServidor.detalleHoy.map(v => `
+            <div class="venta-dia-item">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color: #64748b; font-size: 11px; font-weight: 600; margin-bottom: 2px;">
+                        🕒 ${v.hora || 'Registrada'}
+                    </span>
+                    <span style="font-weight: 500; font-size: 15px; color: #1e293b;">
+                        ${v.nombre}
+                    </span>
+                </div>
+                <strong style="color: var(--success); font-size: 18px;">
+                    $${v.precio.toLocaleString()}
+                </strong>
+            </div>
+        `).join('');
+    } else {
+        lista.innerHTML = "<p style='text-align:center; color:#94a3b8; margin-top:20px;'>No hay ventas hoy o cargando...</p>";
+    }
+}
 
         function cerrarHistorial() { document.getElementById('pantalla-historial').style.display = 'none'; }
 
