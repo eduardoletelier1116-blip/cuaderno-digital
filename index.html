@@ -99,24 +99,27 @@
         }
 
         function verHistorial() {
-            const pantalla = document.getElementById('pantalla-historial');
-            const lista = document.getElementById('lista-ventas-dia');
-            pantalla.style.display = 'block';
-            
-            if (datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
-                lista.innerHTML = datosServidor.detalleHoy.map(v => `
-                    <div class="venta-dia-item">
-                        <div>
-                            <span class="hora-tag">${v.hora || '--:--'}</span>
-                            <span>${v.nombre}</span>
-                        </div>
-                        <strong style="color:#28a745;">$${v.precio.toLocaleString()}</strong>
-                    </div>
-                `).join('');
-            } else {
-                lista.innerHTML = "<p style='text-align:center; color:#999; margin-top:20px;'>No hay ventas registradas hoy todavía.</p>";
-            }
-        }
+    const pantalla = document.getElementById('pantalla-historial');
+    const lista = document.getElementById('lista-ventas-dia');
+    pantalla.style.display = 'block';
+    
+    // Usamos los datos que ya cargamos al inicio
+    if (datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
+        lista.innerHTML = datosServidor.detalleHoy.map(v => `
+            <div class="venta-dia-item">
+                <div>
+                    <small style="color: #888; display: block; font-size: 11px;">${v.hora || 'Registrado'}</small>
+                    <span>${v.nombre}</span>
+                </div>
+                <strong style="color:#28a745;">$${v.precio.toLocaleString()}</strong>
+            </div>
+        `).join('');
+    } else {
+        lista.innerHTML = "<p style='text-align:center; color:#999; margin-top:20px;'>Cargando ventas...</p>";
+        // Si por alguna razón está vacío, intentamos recargar una vez
+        cargarDesdeExcel();
+    }
+}
 
         function cerrarHistorial() { document.getElementById('pantalla-historial').style.display = 'none'; }
 
