@@ -3,194 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FastBook - El Cuaderno Digital de tu Negocio</title>
+    <title>FastBook - El Cuaderno Digital</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
     <link rel="icon" type="image/png" href="logo-fastbook.png">
     
-    <style id="fastbook-theme">
-        /* ESTILOS BASE (Se cargan antes de detectar el dispositivo) */
+    <style>
         :root {
-            --accent: #06e1f0; /* Cian Vibrante para OLED */
-            --primary: #2563eb;
-            --success: #10b981;
+            --accent: #06e1f0; 
+            --success: #06e1f0; /* Cambiado a cian para match con diseño */
             --danger: #ef4444;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* TEMA POR DEFECTO: OSCURO (Para teléfonos, forzado) */
+        /* TEMA OSCURO FORZADO PARA MÓVIL */
         body.fb-theme-dark {
-            --bg: #0A0E17; /* Negro profundo */
-            --card: #141924; /* Gris tarjeta oscuro */
+            --bg: #000000; /* Negro total como la imagen */
+            --card: #0A0E17; 
             --text: #ffffff;
-            --navbar: #11151F;
-            --border: #2A3142;
-            --navbar-text: #ffffff;
-            --input-bg: #11151F;
+            --navbar: #000000;
+            --border: #1E293B;
+            --input-bg: #0A0E17;
         }
 
-        /* TEMA: BLANCO (Para PC) */
+        /* TEMA CLARO PARA PC */
         body.fb-theme-light {
             --bg: #f8fafc;
             --card: #ffffff;
             --text: #1e293b;
             --navbar: #ffffff;
             --border: #e2e8f0;
-            --navbar-text: #1e293b;
             --input-bg: #ffffff;
         }
 
-        /* CSS ESTRUCTURAL (Independiente del tema) */
         body { 
             font-family: 'Inter', sans-serif; 
             background: var(--bg); 
             margin: 0; 
             color: var(--text);
-            transition: background 0.2s, color 0.2s;
         }
 
         .navbar {
             background: var(--navbar);
-            padding: 12px 20px;
+            padding: 15px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 3px solid var(--accent);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-bottom: 2px solid var(--accent);
         }
 
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .logo-container { display: flex; align-items: center; gap: 12px; }
+        .logo-img { height: 35px; width: auto; }
+        .logo-main-text { font-size: 20px; font-weight: 800; color: white; }
+        .logo-main-text span { color: var(--accent); }
 
-        .logo-img {
-            height: 34px;
-            width: auto;
-        }
-
-        .logo-text-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .logo-main-text {
-            color: var(--navbar-text);
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: -0.7px;
-            line-height: 1;
-        }
-
-        .logo-main-text span {
-            color: var(--accent);
-        }
-
-        .logo-sub-text {
-            color: #64748b;
-            font-size: 10px;
-            font-weight: 500;
-            margin-top: 2px;
-        }
-
-        .container { padding: 18px; }
-
+        .container { padding: 20px; }
         .card { 
             background: var(--card); 
-            padding: 26px; 
-            border-radius: 18px; 
-            box-shadow: 0 6px 15px -3px rgba(0,0,0,0.1); 
+            padding: 25px; 
+            border-radius: 20px; 
             border: 1px solid var(--border);
         }
 
-        h3 { margin-top: 0; font-weight: 700; display: flex; align-items: center; gap: 10px; color: var(--text); }
-
+        /* BOTÓN VER BITÁCORA (ESTILO CONTORNO CIAN) */
         .btn-historial { 
-            background: var(--primary); 
+            background: transparent; 
             color: white; 
-            margin-bottom: 22px; 
+            margin-bottom: 20px; 
             width: 100%; 
             padding: 15px; 
-            border: none; 
-            border-radius: 14px; 
-            font-weight: 600; 
+            border: 2px solid var(--accent); 
+            border-radius: 12px; 
+            font-weight: 700; 
             cursor: pointer; 
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
             font-size: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
+            box-shadow: 0 0 10px rgba(6, 225, 240, 0.2);
         }
 
-        .input-group {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            margin: 12px 0;
-        }
-
-        .btn-add {
-            background: var(--navbar);
-            color: var(--accent);
-            border: 2px solid var(--accent);
-            border-radius: 14px;
-            width: 58px;
-            height: 52px;
-            font-size: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
+        /* BOTÓN FINALIZAR VENTA (CIAN BRILLANTE) */
         .btn-green { 
-            background: var(--success); 
-            color: white; 
+            background: var(--accent); 
+            color: #000; 
             width: 100%; 
             padding: 18px; 
             border: none; 
-            border-radius: 14px; 
+            border-radius: 12px; 
             font-size: 18px; 
             font-weight: 800; 
-            margin-top: 22px; 
+            margin-top: 20px; 
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+            box-shadow: 0 0 20px rgba(6, 225, 240, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* BOTÓN "+" */
+        .btn-add {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            width: 60px;
+            height: 54px;
+            font-size: 30px;
+            font-weight: bold;
         }
 
         input { 
             width: 100%; 
             padding: 15px; 
-            border: 1.5px solid var(--border); 
-            border-radius: 12px; 
+            border: 2px solid var(--border); 
+            border-radius: 10px; 
             font-size: 16px; 
-            box-sizing: border-box; 
-            outline: none;
             background: var(--input-bg);
             color: var(--text);
+            box-sizing: border-box;
         }
 
-        input:focus { border-color: var(--accent); }
-
-        .item-actual { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 14px 0; 
-            border-bottom: 1px solid var(--border); 
-        }
+        input:focus { border-color: var(--accent); outline: none; }
 
         .total-actual { 
             text-align: right; 
-            font-size: 28px; 
+            font-size: 30px; 
             font-weight: 800; 
-            color: var(--danger); 
-            margin: 22px 0 12px 0; 
+            color: var(--accent); /* Cambiado a cian para seguir el estilo */
+            margin: 20px 0; 
         }
 
         #pantalla-historial { 
@@ -198,182 +143,125 @@
             position: fixed; 
             top: 0; left: 0; 
             width: 100%; height: 100%; 
-            background: var(--bg); 
+            background: #000; 
             z-index: 2000; 
-            padding: 22px; 
+            padding: 20px; 
             box-sizing: border-box; 
             overflow-y: auto; 
         }
 
-        .venta-dia-item { 
-            background: var(--card);
-            margin-bottom: 10px;
-            padding: 16px; 
-            border-radius: 12px;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-left: 4px solid var(--accent);
-            border: 1px solid var(--border);
-        }
-
         .total-dia-caja { 
-            background: var(--navbar); 
-            color: white; 
-            padding: 22px; 
-            border-radius: 16px; 
-            margin: 22px 0; 
+            background: var(--card); 
+            color: var(--accent); 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin: 20px 0; 
             text-align: center; 
             font-size: 26px; 
             font-weight: 800; 
-            border-bottom: 5px solid var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .venta-dia-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
         }
     </style>
 </head>
-<body class="fb-theme-dark"> <div class="navbar">
+<body class="fb-theme-dark">
+
+    <div class="navbar">
         <div class="logo-container">
-            <img src="logo-fastbook.png" alt="FastBook Logo" class="logo-img">
-            <div class="logo-text-group">
-                <div class="logo-main-text"><span>Fast</span>Book</div>
-                <div class="logo-sub-text">El Cuaderno Digital de tu Negocio</div>
-            </div>
+            <img src="logo-fastbook.png" alt="FastBook" class="logo-img">
+            <div class="logo-main-text"><span>Fast</span>Book</div>
         </div>
-        <div style="color: #64748b; font-size: 11px; font-weight: 600;">v1.0</div>
+        <div style="color: #475569; font-size: 12px;">v1.1</div>
     </div>
 
     <div class="container">
-        <button class="btn-historial" onclick="verHistorial()">📅 Ver Bitácora de Hoy</button>
+        <button class="btn-historial" onclick="verHistorial()">🗓️ Ver Bitácora de Hoy</button>
 
         <div class="card">
-            <h3>🛒 Nueva Venta</h3>
+            <h3 style="margin-bottom:20px;">🛍️ Nueva Venta</h3>
             <input type="text" id="producto" list="sugerencias" placeholder="¿Qué vendes?" autocomplete="off">
             <datalist id="sugerencias"></datalist>
             
-            <div class="input-group">
+            <div class="input-group" style="display:flex; gap:10px; margin-top:10px;">
                 <input type="number" id="precio" placeholder="Precio $" inputmode="numeric">
                 <button class="btn-add" onclick="agregarAlCarrito()">+</button>
             </div>
             
-            <div id="lista-actual" style="margin-top: 15px;"></div>
-            <div class="total-actual" id="txt-total-actual">Total: $0</div>
+            <div id="lista-actual" style="margin-top: 20px;"></div>
+            <div class="total-actual" id="txt-total-actual">$0</div>
 
-            <button onclick="cerrarVenta()" id="btn-enviar" class="btn-green">✅ Finalizar Venta</button>
+            <button onclick="cerrarVenta()" id="btn-enviar" class="btn-green">
+                <span id="check-icon">✅</span> Finalizar Venta
+            </button>
         </div>
     </div>
 
     <div id="pantalla-historial">
-        <button class="btn-historial" style="background:#475569" onclick="cerrarHistorial()">⬅️ Volver a Vender</button>
-        <h2 style="text-align:center; color: var(--text);">Ventas de Hoy</h2>
-        <div class="total-dia-caja" id="caja-total-dia">Total: $0</div>
+        <button class="btn-historial" style="border-color: #475569;" onclick="cerrarHistorial()">⬅️ Volver</button>
+        <h2 style="text-align:center;">Ventas de Hoy</h2>
+        <div class="total-dia-caja" id="caja-total-dia">$0</div>
         <div id="lista-ventas-dia"></div>
     </div>
 
     <script>
-        // DETECCIÓN DE DISPOSITIVO Y FORZADO DE TEMA
-        function aplicarTemaFastbook() {
-            const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const cuerpo = document.body;
-
-            if (esMovil) {
-                // Forzamos el tema OSCURO en teléfonos, pase lo que pase
-                cuerpo.classList.remove('fb-theme-light');
-                cuerpo.classList.add('fb-theme-dark');
-            } else {
-                // Forzamos el tema BLANCO en PC
-                cuerpo.classList.remove('fb-theme-dark');
-                cuerpo.classList.add('fb-theme-light');
-            }
+        // Lógica de detección de PC vs Móvil
+        function detectarDispositivo() {
+            const esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            document.body.className = esMovil ? 'fb-theme-dark' : 'fb-theme-light';
         }
-        
-        // Ejecutar detección al cargar y al cambiar tamaño
-        aplicarTemaFastbook();
-        window.addEventListener('resize', aplicarTemaFastbook);
+        detectarDispositivo();
 
-        // LÓGICA DE LA APP
         let carrito = [];
         let datosServidor = { productos: [], detalleHoy: [], totalHoy: 0 };
-        
         const urlScript = "https://script.google.com/macros/s/AKfycbx9ouaqW0EpWxI7w-IghgT0uHunJLwAGllTlRhT2zwQ6As2NrtzxLyDIXsJizxYD27FCg/exec"; 
 
-        const inProd = document.getElementById('producto');
-        const inPrec = document.getElementById('precio');
-
-        window.onload = function() {
-            aplicarTemaFastbook();
-            cargarDesdeExcel();
-        };
+        window.onload = cargarDesdeExcel;
 
         function cargarDesdeExcel() {
-            const urlConCacheBuster = urlScript + "?t=" + new Date().getTime();
-            fetch(urlConCacheBuster)
+            fetch(urlScript + "?t=" + Date.now())
             .then(r => r.json())
             .then(data => {
                 datosServidor = data;
                 document.getElementById('sugerencias').innerHTML = data.productos.map(p => `<option value="${p}">`).join('');
-                document.getElementById('caja-total-dia').innerText = `Total en Caja: $${data.totalHoy.toLocaleString()}`;
-                
-                if(document.getElementById('pantalla-historial').style.display === 'block') {
-                    dibujarListaVentas();
-                }
-            })
-            .catch(e => {
-                console.error("Error cargando Excel:", e);
+                document.getElementById('caja-total-dia').innerText = `Total: $${data.totalHoy.toLocaleString()}`;
             });
         }
 
         function agregarAlCarrito() {
-            if (inProd.value && inPrec.value) {
-                carrito.push({ producto: inProd.value, precio: parseInt(inPrec.value), idVenta: Date.now() });
-                actualizarCalculadora();
-                inProd.value = ""; 
-                inPrec.value = ""; 
-                inProd.focus();
+            const p = document.getElementById('producto');
+            const pr = document.getElementById('precio');
+            if (p.value && pr.value) {
+                carrito.push({ producto: p.value, precio: parseInt(pr.value) });
+                actualizarVista();
+                p.value = ""; pr.value = ""; p.focus();
             }
         }
 
-        inProd.addEventListener('input', () => {
-            const opts = document.querySelectorAll('#sugerencias option');
-            for (let o of opts) { if (o.value === inProd.value) { inPrec.focus(); break; } }
-        });
-
-        inPrec.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') { agregarAlCarrito(); }
-        });
-
-        function actualizarCalculadora() {
-            document.getElementById('lista-actual').innerHTML = carrito.map(i => `
-                <div class="item-actual"><span>${i.producto}</span> <strong>$${i.precio.toLocaleString()}</strong></div>
-            `).join('');
+        function actualizarVista() {
+            const lista = document.getElementById('lista-actual');
+            lista.innerHTML = carrito.map(i => `<div class="item-actual"><span>${i.producto}</span><strong>$${i.precio.toLocaleString()}</strong></div>`).join('');
             const total = carrito.reduce((s, i) => s + i.precio, 0);
-            document.getElementById('txt-total-actual').innerText = `Total: $${total.toLocaleString()}`;
+            document.getElementById('txt-total-actual').innerText = `$${total.toLocaleString()}`;
         }
 
         function verHistorial() {
             document.getElementById('pantalla-historial').style.display = 'block';
-            dibujarListaVentas();
-        }
-
-        function dibujarListaVentas() {
             const lista = document.getElementById('lista-ventas-dia');
-            if (datosServidor && datosServidor.detalleHoy && datosServidor.detalleHoy.length > 0) {
-                lista.innerHTML = datosServidor.detalleHoy.map(v => `
-                    <div class="venta-dia-item">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="color: #64748b; font-size: 11px; font-weight: 700; margin-bottom: 2px;">
-                                🕒 ${v.hora || '--:--'}
-                            </span>
-                            <span style="font-weight: 600; font-size: 15px; color: var(--text);">
-                                ${v.nombre}
-                            </span>
-                        </div>
-                        <strong style="color: var(--success); font-size: 18px;">
-                            $${(v.precio || 0).toLocaleString()}
-                        </strong>
-                    </div>
-                `).join('');
-            } else {
-                lista.innerHTML = "<p style='text-align:center; color:#94a3b8; margin-top:20px;'>No hay registros recientes</p>";
-            }
+            lista.innerHTML = datosServidor.detalleHoy.map(v => `
+                <div class="venta-dia-item">
+                    <div><small>${v.hora}</small><br><strong>${v.nombre}</strong></div>
+                    <span style="color:var(--accent);">$${v.precio.toLocaleString()}</span>
+                </div>
+            `).join('');
         }
 
         function cerrarHistorial() { document.getElementById('pantalla-historial').style.display = 'none'; }
@@ -382,11 +270,8 @@
             if (carrito.length === 0) return;
             const btn = document.getElementById('btn-enviar');
             btn.innerText = "⏳ Guardando...";
-            btn.disabled = true;
             fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(carrito) })
-            .then(() => {
-                setTimeout(() => { location.reload(); }, 1500); 
-            });
+            .then(() => setTimeout(() => location.reload(), 1000));
         }
     </script>
 </body>
