@@ -55,7 +55,7 @@
         let datosServidor = { productos: [], detalleHoy: [], totalHoy: 0 };
         
         // TU URL DE GOOGLE APPS SCRIPT
-        const urlScript = "https://script.google.com/macros/s/AKfycbxM1AS6VcevPoeG1LuLMrPo9OBInVa8r6tYLhgGagdvjZQQkSgtggRRJmqGobgGOxZZ9Q/exec"; 
+        const urlScript = "https://script.google.com/macros/s/AKfycbxaw_TE6FV92uU42Qt169txYa-E1Lgi3rMQui5PlvuijUTiV4MPt40BK7hSzLcAq6TKNw/exec"; 
 
         const inProd = document.getElementById('producto');
         const inPrec = document.getElementById('precio');
@@ -121,22 +121,25 @@
         function cerrarHistorial() { document.getElementById('pantalla-historial').style.display = 'none'; }
 
         function cerrarVenta() {
-            if (carrito.length === 0) return;
-            const btn = document.getElementById('btn-enviar');
-            btn.innerText = "⏳ Guardando...";
-            btn.disabled = true;
+    if (carrito.length === 0) return;
+    const btn = document.getElementById('btn-enviar');
+    btn.innerText = "⏳ Guardando...";
+    btn.disabled = true;
 
-            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(carrito) })
-            .then(() => {
-                alert("Venta guardada con éxito");
-                location.reload(); 
-            })
-            .catch(e => {
-                alert("Error al guardar: " + e);
-                btn.disabled = false;
-                btn.innerText = "✅ Finalizar Venta";
-            });
-        }
+    fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(carrito) })
+    .then(() => {
+        // En lugar de recargar de inmediato, esperamos un poco
+        setTimeout(() => {
+            alert("Venta guardada");
+            location.reload(); 
+        }, 1500); 
+    })
+    .catch(e => {
+        alert("Error: " + e);
+        btn.disabled = false;
+        btn.innerText = "✅ Finalizar Venta";
+    });
+}
     </script>
 </body>
 </html>
