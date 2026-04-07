@@ -1,87 +1,62 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuaderno Digital</title>
+    <title>Ventas Minimarket</title>
     <style>
-        body { font-family: sans-serif; padding: 15px; background: #f0f2f5; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .btn-save { background: #28a745; color: white; margin-top: 20px; }
-        .item { background: #fff; padding: 10px; margin-top: 5px; border-radius: 8px; display: flex; justify-content: space-between; border-left: 4px solid #007bff; shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .total { text-align: right; font-size: 20px; font-weight: bold; color: #d9534f; margin: 10px 0; }
+        body { font-family: sans-serif; padding: 20px; background: #eee; }
+        .box { background: white; padding: 20px; border-radius: 10px; }
+        input { width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; margin-top: 10px; cursor: pointer; }
+        .item { border-bottom: 1px solid #ccc; padding: 5px 0; }
     </style>
 </head>
 <body>
-
-    <div class="card">
-        <h3>🛒 Nueva Venta</h3>
-        <input type="text" id="producto" list="sugerencias" placeholder="Producto..." autocomplete="off">
-        <datalist id="sugerencias">
-            <option value="Pan">
-            <option value="Bebida 1.5L">
-            <option value="Cigarrillos">
-        </datalist>
-
-        <input type="number" id="precio" placeholder="Precio $" inputmode="numeric">
-        
-        <div class="total" id="total-txt">Total: $0</div>
-        <div id="lista-items"></div>
-        
-        <button onclick="cerrarVenta()" id="btn-enviar" class="btn-save">✅ Guardar Venta</button>
+    <div class="box">
+        <h3>Nueva Venta</h3>
+        <input type="text" id="p" placeholder="Producto" list="lista">
+        <datalist id="lista"><option value="Pan"><option value="Bebida"></datalist>
+        <input type="number" id="v" placeholder="Precio $" inputmode="numeric">
+        <div id="res"></div>
+        <button onclick="enviar()" id="btn" style="background: #28a745; color: white;">GUARDAR EN EXCEL</button>
     </div>
 
     <script>
-        let carrito = [];
-        let idVenta = Date.now();
-        // REEMPLAZA ESTA URL CON LA TUYA NUEVA
-        const urlScript = "https://script.google.com/macros/s/AKfycbwA0Ts37DQn6ASAW5XWrxnQLiVMmA-ddgJ-aOYvs98mjoaTfcigUgcrR1JZarls4kFBPg/exec"; 
+        let car = [];
+        // PEGA TU URL AQUÍ ABAJO ENTRE LAS COMILLAS
+        const URL = "https://script.google.com/macros/s/AKfycbwNz8E7ULF-CpqrUv_yPrTI8BonxoIxSNbPnUFqX5RXXQBzm3FmQ_hDX9iGxrFKc5m9Pg/exec"; 
 
-        const inProd = document.getElementById('producto');
-        const inPrec = document.getElementById('precio');
+        const inpP = document.getElementById('p');
+        const inpV = document.getElementById('v');
 
-        // Salto automático al precio
-        inProd.addEventListener('input', () => {
-            const opts = document.querySelectorAll('#sugerencias option');
-            for (let o of opts) { if (o.value === inProd.value) { inPrec.focus(); break; } }
-        });
-
-        // Enter para agregar a la lista
-        inPrec.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && inProd.value && inPrec.value) {
-                carrito.push({ producto: inProd.value, precio: parseInt(inPrec.value), idVenta: idVenta });
-                const div = document.getElementById('lista-items');
-                div.innerHTML = carrito.map(item => `<div class="item"><span>${item.producto}</span> <span>$${item.precio}</span></div>`).join('');
-                
-                const total = carrito.reduce((s, i) => s + i.precio, 0);
-                document.getElementById('total-txt').innerText = `Total: $${total}`;
-                
-                inProd.value = ""; inPrec.value = ""; inProd.focus();
+        inpV.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && inpP.value && inpV.value) {
+                car.push({ producto: inpP.value, precio: inpV.value, idVenta: Date.now() });
+                dibujar();
+                inpP.value = ""; inpV.value = ""; inpP.focus();
             }
         });
 
-        function cerrarVenta() {
-            if (carrito.length === 0) return;
-            const btn = document.getElementById('btn-enviar');
-            btn.innerText = "⏳ Guardando...";
-            btn.disabled = true;
+        function dibujar() {
+            document.getElementById('res').innerHTML = car.map(i => `<div class="item">${i.producto} - $${i.precio}</div>`).join('');
+        }
 
-            fetch(urlScript, {
+        function enviar() {
+            if (car.length === 0) return alert("Agrega productos primero");
+            const b = document.getElementById('btn');
+            b.innerText = "Enviando..."; b.disabled = true;
+
+            fetch(URL, {
                 method: "POST",
                 mode: "no-cors",
-                body: JSON.stringify(carrito)
+                body: JSON.stringify(car)
             })
             .then(() => {
-                alert("Venta enviada");
-                location.reload(); // Recarga para limpiar todo
+                alert("Venta enviada. Revisa el Excel en 5 segundos.");
+                car = []; dibujar();
+                b.innerText = "GUARDAR EN EXCEL"; b.disabled = false;
             })
-            .catch(e => alert("Error: " + e))
-            .finally(() => {
-                btn.disabled = false;
-                btn.innerText = "✅ Guardar Venta";
-            });
+            .catch(e => alert("Error: " + e));
         }
     </script>
 </body>
