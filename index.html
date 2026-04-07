@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FastBook - El Cuaderno Digital</title>
+    <title>FastBook - Ventas Agrupadas</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="logo-fastbook.png">
     
     <style>
         :root {
             --accent: #06e1f0; 
-            --success: #06e1f0; /* Cambiado a cian para match con diseño */
+            --success: #06e1f0;
             --danger: #ef4444;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* TEMA OSCURO FORZADO PARA MÓVIL */
         body.fb-theme-dark {
-            --bg: #000000; /* Negro total como la imagen */
+            --bg: #000000;
             --card: #0A0E17; 
             --text: #ffffff;
             --navbar: #000000;
@@ -25,7 +24,6 @@
             --input-bg: #0A0E17;
         }
 
-        /* TEMA CLARO PARA PC */
         body.fb-theme-light {
             --bg: #f8fafc;
             --card: #ffffff;
@@ -35,12 +33,7 @@
             --input-bg: #ffffff;
         }
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            margin: 0; 
-            color: var(--text);
-        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); }
 
         .navbar {
             background: var(--navbar);
@@ -67,7 +60,6 @@
             border: 1px solid var(--border);
         }
 
-        /* BOTÓN VER BITÁCORA (ESTILO CONTORNO CIAN) */
         .btn-historial { 
             background: transparent; 
             color: white; 
@@ -77,16 +69,13 @@
             border: 2px solid var(--accent); 
             border-radius: 12px; 
             font-weight: 700; 
-            cursor: pointer; 
             font-size: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: 0 0 10px rgba(6, 225, 240, 0.2);
         }
 
-        /* BOTÓN FINALIZAR VENTA (CIAN BRILLANTE) */
         .btn-green { 
             background: var(--accent); 
             color: #000; 
@@ -97,7 +86,6 @@
             font-size: 18px; 
             font-weight: 800; 
             margin-top: 20px; 
-            cursor: pointer;
             box-shadow: 0 0 20px rgba(6, 225, 240, 0.4);
             display: flex;
             align-items: center;
@@ -105,7 +93,6 @@
             gap: 10px;
         }
 
-        /* BOTÓN "+" */
         .btn-add {
             background: transparent;
             color: var(--accent);
@@ -114,7 +101,6 @@
             width: 60px;
             height: 54px;
             font-size: 30px;
-            font-weight: bold;
         }
 
         input { 
@@ -122,22 +108,15 @@
             padding: 15px; 
             border: 2px solid var(--border); 
             border-radius: 10px; 
-            font-size: 16px; 
             background: var(--input-bg);
             color: var(--text);
             box-sizing: border-box;
+            font-size: 16px;
         }
 
-        input:focus { border-color: var(--accent); outline: none; }
+        .total-actual { text-align: right; font-size: 30px; font-weight: 800; color: var(--accent); margin: 20px 0; }
 
-        .total-actual { 
-            text-align: right; 
-            font-size: 30px; 
-            font-weight: 800; 
-            color: var(--accent); /* Cambiado a cian para seguir el estilo */
-            margin: 20px 0; 
-        }
-
+        /* ESTILO DE BITÁCORA AGRUPADA */
         #pantalla-historial { 
             display: none; 
             position: fixed; 
@@ -148,6 +127,41 @@
             padding: 20px; 
             box-sizing: border-box; 
             overflow-y: auto; 
+        }
+
+        .grupo-venta-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .grupo-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .grupo-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            padding: 4px 0;
+            color: #cbd5e1;
+        }
+
+        .grupo-total {
+            text-align: right;
+            margin-top: 10px;
+            font-weight: 800;
+            font-size: 18px;
+            color: #ffffff;
         }
 
         .total-dia-caja { 
@@ -161,33 +175,22 @@
             font-weight: 800; 
             border: 1px solid var(--accent);
         }
-
-        .venta-dia-item {
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-        }
     </style>
 </head>
-<body class="fb-theme-dark">
+<body>
 
     <div class="navbar">
         <div class="logo-container">
             <img src="logo-fastbook.png" alt="FastBook" class="logo-img">
             <div class="logo-main-text"><span>Fast</span>Book</div>
         </div>
-        <div style="color: #475569; font-size: 12px;">v1.1</div>
+        <div style="color: #475569; font-size: 12px;">v2.0</div>
     </div>
 
     <div class="container">
-        <button class="btn-historial" onclick="verHistorial()">🗓️ Ver Bitácora de Hoy</button>
+        <button class="btn-historial" onclick="verHistorial()">🗓️ Ver Bitácora Agrupada</button>
 
         <div class="card">
-            <h3 style="margin-bottom:20px;">🛍️ Nueva Venta</h3>
             <input type="text" id="producto" list="sugerencias" placeholder="¿Qué vendes?" autocomplete="off">
             <datalist id="sugerencias"></datalist>
             
@@ -199,9 +202,7 @@
             <div id="lista-actual" style="margin-top: 20px;"></div>
             <div class="total-actual" id="txt-total-actual">$0</div>
 
-            <button onclick="cerrarVenta()" id="btn-enviar" class="btn-green">
-                <span id="check-icon">✅</span> Finalizar Venta
-            </button>
+            <button onclick="cerrarVenta()" id="btn-enviar" class="btn-green">✅ Finalizar Venta</button>
         </div>
     </div>
 
@@ -213,7 +214,6 @@
     </div>
 
     <script>
-        // Lógica de detección de PC vs Móvil
         function detectarDispositivo() {
             const esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
             document.body.className = esMovil ? 'fb-theme-dark' : 'fb-theme-light';
@@ -240,7 +240,12 @@
             const p = document.getElementById('producto');
             const pr = document.getElementById('precio');
             if (p.value && pr.value) {
-                carrito.push({ producto: p.value, precio: parseInt(pr.value) });
+                // Generamos un ID de venta basado en el tiempo actual para agrupar
+                carrito.push({ 
+                    producto: p.value, 
+                    precio: parseInt(pr.value),
+                    idVenta: "V-" + new Date().getTime() 
+                });
                 actualizarVista();
                 p.value = ""; pr.value = ""; p.focus();
             }
@@ -248,7 +253,7 @@
 
         function actualizarVista() {
             const lista = document.getElementById('lista-actual');
-            lista.innerHTML = carrito.map(i => `<div class="item-actual"><span>${i.producto}</span><strong>$${i.precio.toLocaleString()}</strong></div>`).join('');
+            lista.innerHTML = carrito.map(i => `<div class="item-actual" style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);"><span>${i.producto}</span><strong>$${i.precio.toLocaleString()}</strong></div>`).join('');
             const total = carrito.reduce((s, i) => s + i.precio, 0);
             document.getElementById('txt-total-actual').innerText = `$${total.toLocaleString()}`;
         }
@@ -256,12 +261,33 @@
         function verHistorial() {
             document.getElementById('pantalla-historial').style.display = 'block';
             const lista = document.getElementById('lista-ventas-dia');
-            lista.innerHTML = datosServidor.detalleHoy.map(v => `
-                <div class="venta-dia-item">
-                    <div><small>${v.hora}</small><br><strong>${v.nombre}</strong></div>
-                    <span style="color:var(--accent);">$${v.precio.toLocaleString()}</span>
+            
+            // LÓGICA DE AGRUPACIÓN POR HORA (Consideramos una "venta" productos que comparten la misma hora exacta)
+            const grupos = {};
+            datosServidor.detalleHoy.forEach(v => {
+                const llave = v.hora; // Agrupamos por hora
+                if (!grupos[llave]) grupos[llave] = { hora: v.hora, items: [], total: 0 };
+                grupos[llave].items.push(v);
+                grupos[llave].total += v.precio;
+            });
+
+            const html = Object.values(grupos).reverse().map(g => `
+                <div class="grupo-venta-card">
+                    <div class="grupo-header">
+                        <span>🕒 Venta de las ${g.hora}</span>
+                        <span>${g.items.length} prod.</span>
+                    </div>
+                    ${g.items.map(item => `
+                        <div class="grupo-item">
+                            <span>${item.nombre}</span>
+                            <span>$${item.precio.toLocaleString()}</span>
+                        </div>
+                    `).join('')}
+                    <div class="grupo-total">Total: $${g.total.toLocaleString()}</div>
                 </div>
             `).join('');
+            
+            lista.innerHTML = html || "<p style='text-align:center;'>No hay ventas hoy</p>";
         }
 
         function cerrarHistorial() { document.getElementById('pantalla-historial').style.display = 'none'; }
@@ -270,6 +296,7 @@
             if (carrito.length === 0) return;
             const btn = document.getElementById('btn-enviar');
             btn.innerText = "⏳ Guardando...";
+            // Al enviar, todos los productos del carrito se guardan con la misma estampa de tiempo en el servidor
             fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(carrito) })
             .then(() => setTimeout(() => location.reload(), 1000));
         }
