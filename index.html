@@ -29,13 +29,14 @@
         .loader-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
         .spinner { width: 50px; height: 50px; border: 5px solid rgba(6, 225, 240, 0.2); border-top: 5px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader-text { color: var(--accent); font-weight: 700; font-size: 18px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div id="loader" class="loader-overlay">
         <div class="spinner"></div>
-        <div style="color:var(--accent); font-weight:700;">PROCESANDO...</div>
+        <div id="loader-mensaje" class="loader-text">PROCESANDO...</div>
     </div>
 
     <div class="app-wrapper">
@@ -101,8 +102,8 @@
     <script>
         let carrito = [];
         let datosServidor = { productos: [], detalleHoy: [], deudores: [] };
-        let deudaSeleccionada = null; // Para guardar temporalmente qué deuda estamos cobrando
-        const urlScript = "https://script.google.com/macros/s/AKfycbykP9DdL-kxYLxzk_oVE5xNMigxSBESE23Tn1G40J2ouzipQqUMSNE7vpfboaG85MJZ/exec"; 
+        let deudaSeleccionada = null;
+        const urlScript = "https://script.google.com/macros/s/AKfycbz2GsNtfSOPWlvznDZViztb1tDicbT9uWH_nhP2NjwpyilNYMGhlBUzo6_yrGNftmqp/exec"; 
 
         window.onload = cargarDatos;
 
@@ -113,6 +114,13 @@
                 renderBitacora();
                 renderDeudores();
             });
+        }
+
+        function mostrarNotificacion(mensaje) {
+            const txt = document.getElementById('loader-mensaje');
+            txt.innerText = "✅ " + mensaje;
+            txt.style.color = "#00ff00";
+            setTimeout(() => { location.reload(); }, 1200);
         }
 
         function agregarAlCarrito() {
@@ -157,7 +165,7 @@
             cerrarModal();
             const datosVenta = { items: carrito, total: carrito.reduce((s, i) => s + i.precio, 0), pago: metodo, cliente: cliente };
             fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(datosVenta) })
-            .then(() => { setTimeout(() => { alert("✅ Venta Guardada"); location.reload(); }, 500); });
+            .then(() => { mostrarNotificacion("VENTA GUARDADA"); });
         }
 
         function cambiarVista(v) {
@@ -224,10 +232,8 @@
         function procesarCobro() {
             const vend = document.getElementById('vendedor-cobro').value;
             if (!vend) return alert("Escribe quién recibe el dinero");
-
             document.getElementById('loader').style.display = 'flex';
             document.getElementById('modal-cobro').style.display = 'none';
-
             const pack = { 
                 accion: "cobrar", 
                 idVenta: deudaSeleccionada.idVenta, 
@@ -235,14 +241,8 @@
                 cliente: deudaSeleccionada.nombre, 
                 monto: deudaSeleccionada.monto 
             };
-
             fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(pack) })
-            .then(() => { 
-                setTimeout(() => { 
-                    alert("✅ Pago registrado y deuda saldada"); 
-                    location.reload(); 
-                }, 500); 
-            });
+            .then(() => { mostrarNotificacion("PAGO REGISTRADO"); });
         }
     </script>
 </body>
