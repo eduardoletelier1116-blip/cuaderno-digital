@@ -37,7 +37,13 @@
             border-radius: 15px; margin-bottom: 20px; border: 1px dashed var(--accent);
         }
 
-        .total-actual { font-size: 45px; font-weight: 800; color: var(--text); }
+        /* Total imponente con brillo */
+        .total-actual { 
+            font-size: 55px; 
+            font-weight: 900; 
+            color: var(--accent); 
+            text-shadow: 0 0 15px rgba(6, 225, 240, 0.3);
+        }
 
         .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
 
@@ -62,9 +68,28 @@
         .nav-item.active { color: var(--accent); }
 
         .btn-pago { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border); background: #1e293b; color: white; font-weight: 700; text-align: left; }
+
+        /* Estilos del Cargador */
+        .loader-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); z-index: 9999; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid rgba(6, 225, 240, 0.2);
+            border-top: 5px solid var(--accent); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader-text { color: var(--accent); font-weight: 700; letter-spacing: 1px; }
     </style>
 </head>
 <body>
+
+    <div id="loader" class="loader-overlay">
+        <div class="spinner"></div>
+        <div class="loader-text">GUARDANDO VENTA...</div>
+    </div>
 
     <div class="app-wrapper">
         <div class="navbar">
@@ -130,6 +155,9 @@
             fetch(urlScript + "?t=" + Date.now()).then(r => r.json()).then(data => {
                 datosServidor = data;
                 document.getElementById('sugerencias').innerHTML = data.productos.map(p => `<option value="${p}">`).join('');
+                // Inicializar vistas con datos cargados
+                renderBitacora();
+                renderDeudores();
             });
         }
 
@@ -158,6 +186,7 @@
         }
 
         function eliminarItem(id) { carrito = carrito.filter(i => i.id !== id); actualizarVista(); }
+        
         function editarItem(id) {
             const i = carrito.find(x => x.id === id);
             document.getElementById('producto').value = i.producto;
@@ -166,14 +195,18 @@
         }
 
         function abrirCierreVenta() { document.getElementById('modal-pago').style.display = 'block'; }
-        function cerrarModal() { document.getElementById('modal-pago').style.display = 'none'; }
+        function cerrarModal() { 
+            document.getElementById('modal-pago').style.display = 'none'; 
+            document.getElementById('seccion-fiado').style.display = 'none';
+        }
 
         function finalizarVenta(metodo) {
             const cliente = metodo === 'Fiado' ? document.getElementById('nombre-cliente').value : 'Venta Directa';
-            if (metodo === 'Fiado' && !cliente) return alert("Falta nombre");
+            if (metodo === 'Fiado' && !cliente) return alert("Por favor, ingresa el nombre del cliente");
 
-            const btn = document.getElementById('btn-finalizar');
-            btn.innerText = "⏳ Guardando..."; btn.disabled = true;
+            // Mostrar cargador y bloquear interfaz
+            document.getElementById('loader').style.display = 'flex';
+            cerrarModal();
 
             const datosVenta = {
                 items: carrito,
@@ -183,7 +216,16 @@
             };
 
             fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(datosVenta) })
-            .then(() => { alert("¡Venta Exitosa!"); location.reload(); });
+            .then(() => { 
+                setTimeout(() => {
+                    alert("✅ ¡Venta Registrada!"); 
+                    location.reload(); 
+                }, 500);
+            })
+            .catch(err => {
+                document.getElementById('loader').style.display = 'none';
+                alert("Error: " + err);
+            });
         }
 
         function cambiarVista(v) {
@@ -197,90 +239,69 @@
         }
 
         function renderBitacora() {
-    const lista = document.getElementById('lista-ventas-dia');
-    if (datosServidor.detalleHoy.length === 0) { 
-        lista.innerHTML = "<p style='text-align:center;'>Sin ventas hoy.</p>"; 
-        return; 
-    }
-    
-    const agrupadas = {};
-    datosServidor.detalleHoy.forEach(it => {
-        if (!agrupadas[it.idVenta]) {
-            // LIMPIEZA DE HORA: Si viene el texto largo de 1899, cortamos solo HH:MM
-            let horaLimpia = it.hora;
-            if (it.hora.includes("GMT") || it.hora.includes("T")) {
-                // Extrae los caracteres después del espacio (ej: 12:52) o usa un objeto Date
-                const d = new Date(it.hora);
-                horaLimpia = d.getHours() + ":" + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+            const lista = document.getElementById('lista-ventas-dia');
+            if (!datosServidor.detalleHoy || datosServidor.detalleHoy.length === 0) { 
+                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Sin ventas hoy.</p>"; 
+                return; 
             }
+            
+            const agrupadas = {};
+            datosServidor.detalleHoy.forEach(it => {
+                if (!agrupadas[it.idVenta]) {
+                    let horaLimpia = it.hora;
+                    if (it.hora && (it.hora.includes("GMT") || it.hora.includes("T"))) {
+                        const d = new Date(it.hora);
+                        horaLimpia = d.getHours() + ":" + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+                    }
+                    agrupadas[it.idVenta] = { hora: horaLimpia, pago: it.pago, cliente: it.cliente, productos: [], total: 0 };
+                }
+                agrupadas[it.idVenta].productos.push(it);
+                agrupadas[it.idVenta].total += it.precio;
+            });
 
-            agrupadas[it.idVenta] = { 
-                hora: horaLimpia, 
-                pago: it.pago, 
-                cliente: it.cliente, 
-                productos: [], 
-                total: 0 
-            };
-        }
-        agrupadas[it.idVenta].productos.push(it);
-        agrupadas[it.idVenta].total += it.precio;
-    });
-
-    lista.innerHTML = Object.values(agrupadas).reverse().map(g => `
-        <div class="card" style="margin-bottom:15px; border-color:var(--accent); background: #0A0E17; padding:15px; border-radius:15px; border:1px solid var(--border);">
-            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:5px; margin-bottom:8px;">
-                <span style="color:var(--accent); font-weight:700;">🕒 ${g.hora}</span>
-                <span style="font-size:12px; color:#64748b;">${g.pago} ${g.cliente !== 'Venta Directa' ? '('+g.cliente+')' : ''}</span>
-            </div>
-            ${g.productos.map(p => `
-                <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:3px;">
-                    <span>${p.nombre}</span>
-                    <span>$${p.precio.toLocaleString()}</span>
+            lista.innerHTML = Object.values(agrupadas).reverse().map(g => `
+                <div class="card" style="margin-bottom:15px; border-color:var(--accent);">
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:5px; margin-bottom:8px;">
+                        <span style="color:var(--accent); font-weight:700;">🕒 ${g.hora}</span>
+                        <span style="font-size:12px; color:#64748b;">${g.pago} ${g.cliente !== 'Venta Directa' ? '('+g.cliente+')' : ''}</span>
+                    </div>
+                    ${g.productos.map(p => `<div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:2px;"><span>${p.nombre}</span><span>$${p.precio.toLocaleString()}</span></div>`).join('')}
+                    <div style="text-align:right; border-top:1px dashed #1e293b; margin-top:8px; padding-top:5px; font-weight:800; color:var(--accent); font-size:18px;">Total: $${g.total.toLocaleString()}</div>
                 </div>
-            `).join('')}
-            <div style="text-align:right; border-top:1px dashed #1e293b; margin-top:8px; padding-top:5px; font-weight:800; color:var(--accent); font-size:18px;">
-                Total: $${g.total.toLocaleString()}
-            </div>
-        </div>
-    `).join('');
-}
+            `).join('');
+        }
 
         function renderDeudores() {
-    const lista = document.getElementById('lista-deudores');
-    if (datosServidor.deudores.length === 0) { 
-        lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Nadie debe nada.</p>"; 
-        return; 
-    }
+            const lista = document.getElementById('lista-deudores');
+            if (!datosServidor.deudores || datosServidor.deudores.length === 0) { 
+                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Nadie debe nada.</p>"; 
+                return; 
+            }
 
-    lista.innerHTML = datosServidor.deudores.map(d => {
-        // LIMPIEZA DE HORA
-        let horaLimpia = d.hora;
-        if (d.hora && (d.hora.includes("GMT") || d.hora.includes("T"))) {
-            const dateObj = new Date(d.hora);
-            const horas = dateObj.getHours();
-            const minutos = dateObj.getMinutes();
-            horaLimpia = (horas < 10 ? '0' : '') + horas + ":" + (minutos < 10 ? '0' : '') + minutos;
+            lista.innerHTML = datosServidor.deudores.map(d => {
+                let horaLimpia = d.hora;
+                if (d.hora && (d.hora.includes("GMT") || d.hora.includes("T"))) {
+                    const dateObj = new Date(d.hora);
+                    horaLimpia = dateObj.getHours() + ":" + (dateObj.getMinutes() < 10 ? '0' : '') + dateObj.getMinutes();
+                }
+                let fechaLimpia = d.fecha;
+                if (d.fecha && d.fecha.includes("GMT")) {
+                    fechaLimpia = new Date(d.fecha).toLocaleDateString();
+                }
+
+                return `
+                    <div class="item-fila" style="border: 1px solid var(--accent); margin-bottom:12px; padding:15px; border-radius:15px; background: rgba(6, 225, 240, 0.02);">
+                        <div style="flex-grow:1;">
+                            <strong style="font-size:18px; color:var(--text);">${d.nombre}</strong><br>
+                            <small style="color:#64748b;">📅 ${fechaLimpia} - 🕒 ${horaLimpia}</small>
+                        </div>
+                        <div style="text-align:right;">
+                            <strong style="color:var(--accent); font-size:22px;">$${d.monto.toLocaleString()}</strong>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
-
-        // LIMPIEZA DE FECHA (Por si acaso viene el texto largo también)
-        let fechaLimpia = d.fecha;
-        if (d.fecha && d.fecha.includes("GMT")) {
-            fechaLimpia = new Date(d.fecha).toLocaleDateString();
-        }
-
-        return `
-            <div class="item-fila" style="border: 1px solid var(--accent); margin-bottom:12px; padding:15px; border-radius:15px; background: rgba(6, 225, 240, 0.02);">
-                <div style="flex-grow:1;">
-                    <strong style="font-size:18px; color:var(--text);">${d.nombre}</strong><br>
-                    <small style="color:#64748b;">📅 ${fechaLimpia} - 🕒 ${horaLimpia}</small>
-                </div>
-                <div style="text-align:right;">
-                    <strong style="color:var(--accent); font-size:22px;">$${d.monto.toLocaleString()}</strong>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
     </script>
 </body>
 </html>
