@@ -181,7 +181,7 @@
         let carrito = [];
         let datosServidor = { productos: [], detalleHoy: [], deudores: [] };
         // COLOCA AQUÍ TU NUEVA URL DE GOOGLE APPS SCRIPT
-        const urlScript = "https://script.google.com/macros/s/AKfycbwK2EuHhVji4krd1WlStmVYUkW4EpfEwb5iAlZyuvBZ5BdpufCQHfV812-6Iz4tR-Bdtw/exec"; 
+        const urlScript = "https://script.google.com/macros/s/AKfycbzSKScOubFdtw6AxGoryxI18h1f0JQJnZ1JTAVakW3ejhA3GcShp2VyAUr5g4nWuP6XGA/exec"; 
 
         window.onload = () => {
             fetch(urlScript + "?t=" + Date.now()).then(r => r.json()).then(data => {
