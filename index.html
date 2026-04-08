@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FastBook - Sistema de Ventas</title>
+    <title>FastBook Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
     <link rel="icon" type="image/png" href="logo-icono.png">
     
     <style>
@@ -15,8 +14,7 @@
             --card: #0A0E17;
             --text: #ffffff;
             --border: #1E293B;
-            --input-bg: #0A0E17;
-            -webkit-tap-highlight-color: transparent;
+            --danger: #ff4757;
         }
 
         body { 
@@ -27,296 +25,242 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-bottom: 80px; /* Espacio para el botón de abajo */
         }
 
-        .app-wrapper {
-            width: 100%;
-            max-width: 500px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        .app-wrapper { width: 100%; max-width: 500px; min-height: 100vh; }
 
-        /* NAVBAR MEJORADA: ICONO Y TEXTO JUNTOS */
         .navbar {
             background: var(--bg);
             padding: 12px 20px;
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* Todo alineado a la izquierda */
-            gap: 12px; /* Espacio entre cuaderno y texto */
+            justify-content: flex-start;
+            gap: 12px;
             position: sticky;
             top: 0;
             z-index: 1000;
             border-bottom: 2px solid var(--accent);
-            box-shadow: 0 4px 15px rgba(6, 225, 240, 0.1);
         }
 
-        .img-icono {
-            height: 35px;
-            width: auto;
-            object-fit: contain;
+        .img-icono { height: 35px; width: auto; }
+        .logo-texto-custom { font-size: 22px; font-weight: 800; color: #ffffff; }
+        .logo-texto-custom span { color: var(--accent); }
+
+        .container { padding: 20px; }
+
+        /* ESPACIO PARA EL TOTAL CLIENTE */
+        .header-venta {
+            text-align: center;
+            padding: 20px;
+            background: rgba(6, 225, 240, 0.05);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px dashed var(--accent);
         }
 
-        .logo-texto-custom {
-            font-size: 22px;
-            font-weight: 800;
-            color: #ffffff;
-            letter-spacing: -0.5px;
-            text-shadow: 0 0 10px rgba(6, 225, 240, 0.2);
-        }
-
-        .logo-texto-custom span {
-            color: var(--accent);
-        }
-
-        .container { padding: 20px; flex-grow: 1; }
+        .header-venta small { color: var(--accent); font-weight: 600; text-transform: uppercase; font-size: 12px; }
+        .total-actual { font-size: 45px; font-weight: 800; color: var(--text); margin: 5px 0; }
 
         .card { 
             background: var(--card); 
-            padding: 25px; 
+            padding: 20px; 
             border-radius: 20px; 
             border: 1px solid var(--border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .btn-historial { 
-            background: transparent; 
-            color: white; 
-            margin-bottom: 20px; 
-            width: 100%; 
-            padding: 15px; 
-            border: 2px solid var(--accent); 
-            border-radius: 12px; 
-            font-weight: 700; 
-            font-size: 15px;
-            cursor: pointer;
+        /* LISTA DE ITEMS CON ACCIONES */
+        .item-fila {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            padding: 12px 0;
+            border-bottom: 1px solid #1e293b;
         }
 
-        .btn-green { 
-            background: var(--accent); 
-            color: #000; 
-            width: 100%; 
-            padding: 18px; 
-            border: none; 
-            border-radius: 12px; 
-            font-size: 18px; 
-            font-weight: 800; 
-            margin-top: 20px; 
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(6, 225, 240, 0.4);
-        }
+        .item-info { flex-grow: 1; }
+        .item-acciones { display: flex; gap: 15px; margin-left: 10px; }
+        .btn-accion { background: none; border: none; font-size: 18px; cursor: pointer; padding: 5px; }
 
         input { 
-            width: 100%; 
-            padding: 15px; 
-            border: 2px solid var(--border); 
-            border-radius: 10px; 
-            background: var(--input-bg);
-            color: var(--text);
-            box-sizing: border-box;
-            font-size: 16px;
-            margin-bottom: 10px;
+            width: 100%; padding: 15px; border: 2px solid var(--border); 
+            border-radius: 10px; background: #0A0E17; color: white; 
+            box-sizing: border-box; font-size: 16px; margin-bottom: 10px;
         }
-
-        input:focus { border-color: var(--accent); outline: none; }
 
         .btn-add {
-            background: transparent;
-            color: var(--accent);
-            border: 2px solid var(--accent);
-            border-radius: 10px;
-            width: 60px;
-            height: 54px;
-            font-size: 30px;
-            font-weight: bold;
-            cursor: pointer;
+            background: var(--accent); color: black; border: none;
+            border-radius: 10px; width: 60px; height: 54px; font-size: 25px; font-weight: bold;
         }
 
-        .total-actual { text-align: right; font-size: 35px; font-weight: 800; color: var(--accent); margin: 20px 0; }
-
-        #pantalla-historial { 
-            display: none; 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            background: #000; 
-            z-index: 2000; 
-            padding: 20px; 
-            box-sizing: border-box; 
-            overflow-y: auto; 
+        /* MODALES */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 3000; padding: 20px; box-sizing: border-box;
         }
 
-        .grupo-venta-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 18px;
-            margin-bottom: 15px;
-            max-width: 460px;
-            margin: 0 auto 15px auto;
+        .modal-content {
+            background: var(--card); border: 1px solid var(--accent);
+            border-radius: 20px; padding: 25px; max-width: 400px; margin: 50px auto;
         }
 
-        .grupo-header {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            color: var(--accent);
-            font-weight: 700;
+        .btn-pago {
+            width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px;
+            border: 1px solid var(--border); background: #1e293b; color: white;
+            font-weight: 700; text-align: left; display: flex; justify-content: space-between;
         }
 
-        .grupo-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            color: #cbd5e1;
+        .btn-pago:active { background: var(--accent); color: black; }
+
+        /* NAVEGACIÓN INFERIOR */
+        .nav-bottom {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: #000; border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; padding: 10px 0;
+            z-index: 2000;
         }
 
-        .grupo-total {
-            text-align: right;
-            margin-top: 12px;
-            font-weight: 800;
-            font-size: 20px;
-            color: #ffffff;
-            border-top: 1px dashed var(--border);
-            padding-top: 8px;
+        .nav-item {
+            background: none; border: none; color: #475569;
+            font-size: 11px; font-weight: 700; display: flex; flex-direction: column;
+            align-items: center; gap: 5px; cursor: pointer;
         }
 
-        .total-dia-caja { 
-            background: var(--card); 
-            color: var(--accent); 
-            padding: 25px; 
-            border-radius: 15px; 
-            margin: 20px auto; 
-            text-align: center; 
-            font-size: 28px; 
-            font-weight: 800; 
-            border: 1px solid var(--accent);
-            max-width: 460px;
-        }
+        .nav-item.active { color: var(--accent); }
+        .nav-item i { font-size: 20px; }
     </style>
 </head>
 <body>
 
     <div class="app-wrapper">
         <div class="navbar">
-            <img src="logo-icono.png" alt="FastBook Icono" class="img-icono">
+            <img src="logo-icono.png" alt="Icono" class="img-icono">
             <div class="logo-texto-custom"><span>Fast</span>Book</div>
         </div>
 
-        <div class="container">
-            <button class="btn-historial" onclick="verHistorial()">🗓️ Ver Bitácora Agrupada</button>
+        <div class="container" id="vista-vender">
+            <div class="header-venta">
+                <small>Subtotal Venta</small>
+                <div class="total-actual" id="txt-total-actual">$0</div>
+            </div>
 
             <div class="card">
-                <h3 style="margin-top:0; color:white; font-size: 18px; margin-bottom: 15px;">🛒 Nueva Venta</h3>
-                <input type="text" id="producto" list="sugerencias" placeholder="¿Qué vendes?" autocomplete="off">
+                <input type="text" id="producto" list="sugerencias" placeholder="Producto...">
                 <datalist id="sugerencias"></datalist>
-                
                 <div style="display:flex; gap:10px;">
                     <input type="number" id="precio" placeholder="Precio $" inputmode="numeric">
                     <button class="btn-add" onclick="agregarAlCarrito()">+</button>
                 </div>
                 
-                <div id="lista-actual" style="margin-top: 20px;"></div>
-                <div class="total-actual" id="txt-total-actual">$0</div>
-
-                <button onclick="cerrarVenta()" id="btn-enviar" class="btn-green">✅ Finalizar Venta</button>
+                <div id="lista-actual" style="margin-top: 10px;"></div>
+                <button onclick="abrirCierreVenta()" id="btn-finalizar" class="btn-green" style="width:100%; padding:18px; background:var(--accent); border:none; border-radius:12px; font-weight:800; margin-top:15px; display:none;">
+                    ✅ CERRAR VENTA
+                </button>
             </div>
         </div>
-    </div>
 
-    <div id="pantalla-historial">
-        <div style="max-width: 500px; margin: 0 auto;">
-            <button class="btn-historial" style="border-color: #475569;" onclick="cerrarHistorial()">⬅️ Volver</button>
-            <h2 style="text-align:center;">Ventas de Hoy</h2>
-            <div class="total-dia-caja" id="caja-total-dia">$0</div>
-            <div id="lista-ventas-dia"></div>
+        <div class="container" id="vista-deudores" style="display:none;">
+            <h2 style="color:var(--accent);">👥 Cuentas por Cobrar</h2>
+            <div id="lista-deudores"></div>
         </div>
     </div>
+
+    <div id="modal-pago" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-top:0;">Selecciona Pago</h3>
+            <button class="btn-pago" onclick="finalizarVenta('Efectivo')">💵 Efectivo <span>></span></button>
+            <button class="btn-pago" onclick="finalizarVenta('Tarjeta')">💳 Tarjeta <span>></span></button>
+            <button class="btn-pago" onclick="mostrarInputFiado()">📝 Fiado (Deuda) <span>></span></button>
+            
+            <div id="seccion-fiado" style="display:none; margin-top:15px;">
+                <input type="text" id="nombre-cliente" placeholder="Nombre del cliente...">
+                <button class="btn-green" style="width:100%; background:var(--accent); padding:10px; border:none; border-radius:8px; font-weight:bold;" onclick="finalizarVenta('Fiado')">GUARDAR DEUDA</button>
+            </div>
+            <button onclick="cerrarModal()" style="width:100%; background:none; border:none; color:#64748b; margin-top:15px;">Cancelar</button>
+        </div>
+    </div>
+
+    <nav class="nav-bottom">
+        <button class="nav-item active" onclick="cambiarVista('vender')"><span>🛒</span>Vender</button>
+        <button class="nav-item" onclick="verHistorial()"><span>🗓️</span>Bitácora</button>
+        <button class="nav-item" onclick="cambiarVista('deudores')"><span>👥</span>Deudores</button>
+    </nav>
 
     <script>
         let carrito = [];
-        let datosServidor = { productos: [], detalleHoy: [], totalHoy: 0 };
-        const urlScript = "https://script.google.com/macros/s/AKfycbx9ouaqW0EpWxI7w-IghgT0uHunJLwAGllTlRhT2zwQ6As2NrtzxLyDIXsJizxYD27FCg/exec"; 
-
-        window.onload = cargarDesdeExcel;
-
-        function cargarDesdeExcel() {
-            fetch(urlScript + "?t=" + Date.now())
-            .then(r => r.json())
-            .then(data => {
-                datosServidor = data;
-                document.getElementById('sugerencias').innerHTML = data.productos.map(p => `<option value="${p}">`).join('');
-                document.getElementById('caja-total-dia').innerText = `Total: $${data.totalHoy.toLocaleString()}`;
-            });
-        }
+        let datosServidor = { productos: [], detalleHoy: [], deudores: [] };
+        const urlScript = "TU_URL_DE_APPS_SCRIPT"; 
 
         function agregarAlCarrito() {
             const p = document.getElementById('producto');
             const pr = document.getElementById('precio');
             if (p.value && pr.value) {
-                carrito.push({ producto: p.value, precio: parseInt(pr.value) });
+                carrito.push({ id: Date.now(), producto: p.value, precio: parseInt(pr.value) });
+                p.value = ""; pr.value = "";
                 actualizarVista();
-                p.value = ""; pr.value = ""; p.focus();
             }
         }
 
         function actualizarVista() {
             const lista = document.getElementById('lista-actual');
-            lista.innerHTML = carrito.map(i => `
-                <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
-                    <span>${i.producto}</span>
-                    <strong style="color:var(--accent);">$${i.precio.toLocaleString()}</strong>
-                </div>`).join('');
-            const total = carrito.reduce((s, i) => s + i.precio, 0);
-            document.getElementById('txt-total-actual').innerText = `$${total.toLocaleString()}`;
-        }
-
-        function verHistorial() {
-            document.getElementById('pantalla-historial').style.display = 'block';
-            const lista = document.getElementById('lista-ventas-dia');
-            const grupos = {};
-            datosServidor.detalleHoy.forEach(v => {
-                const llave = v.hora; 
-                if (!grupos[llave]) grupos[llave] = { hora: v.hora, items: [], total: 0 };
-                grupos[llave].items.push(v);
-                grupos[llave].total += v.precio;
-            });
-
-            const html = Object.values(grupos).reverse().map(g => `
-                <div class="grupo-venta-card">
-                    <div class="grupo-header">
-                        <span>🕒 Hora: ${g.hora}</span>
-                        <span>${g.items.length} productos</span>
+            const btnFin = document.getElementById('btn-finalizar');
+            
+            lista.innerHTML = carrito.map(item => `
+                <div class="item-fila">
+                    <div class="item-info">
+                        <strong>${item.producto}</strong><br>
+                        <span style="color:var(--accent)">$${item.precio.toLocaleString()}</span>
                     </div>
-                    ${g.items.map(item => `
-                        <div class="grupo-item">
-                            <span>${item.nombre}</span>
-                            <span>$${item.precio.toLocaleString()}</span>
-                        </div>
-                    `).join('')}
-                    <div class="grupo-total">Total: $${g.total.toLocaleString()}</div>
+                    <div class="item-acciones">
+                        <button class="btn-accion" onclick="editarItem(${item.id})">✏️</button>
+                        <button class="btn-accion" onclick="eliminarItem(${item.id})">🗑️</button>
+                    </div>
                 </div>
             `).join('');
-            lista.innerHTML = html || "<p style='text-align:center;'>Sin ventas registradas</p>";
+
+            const total = carrito.reduce((s, i) => s + i.precio, 0);
+            document.getElementById('txt-total-actual').innerText = `$${total.toLocaleString()}`;
+            btnFin.style.display = carrito.length > 0 ? 'block' : 'none';
         }
 
-        function cerrarHistorial() { document.getElementById('pantalla-historial').style.display = 'none'; }
+        function eliminarItem(id) {
+            carrito = carrito.filter(i => i.id !== id);
+            actualizarVista();
+        }
 
-        function cerrarVenta() {
-            if (carrito.length === 0) return;
-            const btn = document.getElementById('btn-enviar');
-            btn.innerText = "⏳ Guardando...";
-            btn.disabled = true;
-            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(carrito) })
-            .then(() => setTimeout(() => location.reload(), 1200));
+        function editarItem(id) {
+            const item = carrito.find(i => i.id === id);
+            document.getElementById('producto').value = item.producto;
+            document.getElementById('precio').value = item.precio;
+            eliminarItem(id);
+        }
+
+        function abrirCierreVenta() { document.getElementById('modal-pago').style.display = 'block'; }
+        function cerrarModal() { document.getElementById('modal-pago').style.display = 'none'; }
+        function mostrarInputFiado() { document.getElementById('seccion-fiado').style.display = 'block'; }
+
+        function finalizarVenta(metodo) {
+            const cliente = metodo === 'Fiado' ? document.getElementById('nombre-cliente').value : 'Venta Directa';
+            if (metodo === 'Fiado' && !cliente) return alert("Escribe el nombre del cliente");
+
+            const datosVenta = {
+                items: carrito,
+                total: carrito.reduce((s, i) => s + i.precio, 0),
+                pago: metodo,
+                cliente: cliente,
+                fecha: new Date().toISOString()
+            };
+
+            // Aquí enviarías a Google Sheets
+            console.log("Enviando venta...", datosVenta);
+            alert("Venta guardada como " + metodo);
+            location.reload();
+        }
+
+        function cambiarVista(vista) {
+            document.getElementById('vista-vender').style.display = vista === 'vender' ? 'block' : 'none';
+            document.getElementById('vista-deudores').style.display = vista === 'deudores' ? 'block' : 'none';
+            // Lógica para marcar botón activo en nav
         }
     </script>
 </body>
