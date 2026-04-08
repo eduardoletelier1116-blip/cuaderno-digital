@@ -14,7 +14,6 @@
             --card: #0A0E17;
             --text: #ffffff;
             --border: #1E293B;
-            --danger: #ff4757;
         }
 
         body { 
@@ -25,7 +24,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-bottom: 80px; /* Espacio para el botón de abajo */
+            padding-bottom: 80px; 
         }
 
         .app-wrapper { width: 100%; max-width: 500px; min-height: 100vh; }
@@ -35,7 +34,6 @@
             padding: 12px 20px;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
             gap: 12px;
             position: sticky;
             top: 0;
@@ -43,13 +41,12 @@
             border-bottom: 2px solid var(--accent);
         }
 
-        .img-icono { height: 35px; width: auto; }
-        .logo-texto-custom { font-size: 22px; font-weight: 800; color: #ffffff; }
+        .img-icono { height: 35px; }
+        .logo-texto-custom { font-size: 22px; font-weight: 800; }
         .logo-texto-custom span { color: var(--accent); }
 
         .container { padding: 20px; }
 
-        /* ESPACIO PARA EL TOTAL CLIENTE */
         .header-venta {
             text-align: center;
             padding: 20px;
@@ -59,8 +56,7 @@
             border: 1px dashed var(--accent);
         }
 
-        .header-venta small { color: var(--accent); font-weight: 600; text-transform: uppercase; font-size: 12px; }
-        .total-actual { font-size: 45px; font-weight: 800; color: var(--text); margin: 5px 0; }
+        .total-actual { font-size: 45px; font-weight: 800; color: var(--text); }
 
         .card { 
             background: var(--card); 
@@ -69,7 +65,6 @@
             border: 1px solid var(--border);
         }
 
-        /* LISTA DE ITEMS CON ACCIONES */
         .item-fila {
             display: flex;
             justify-content: space-between;
@@ -77,10 +72,6 @@
             padding: 12px 0;
             border-bottom: 1px solid #1e293b;
         }
-
-        .item-info { flex-grow: 1; }
-        .item-acciones { display: flex; gap: 15px; margin-left: 10px; }
-        .btn-accion { background: none; border: none; font-size: 18px; cursor: pointer; padding: 5px; }
 
         input { 
             width: 100%; padding: 15px; border: 2px solid var(--border); 
@@ -93,7 +84,6 @@
             border-radius: 10px; width: 60px; height: 54px; font-size: 25px; font-weight: bold;
         }
 
-        /* MODALES */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 3000; padding: 20px; box-sizing: border-box;
@@ -107,12 +97,9 @@
         .btn-pago {
             width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px;
             border: 1px solid var(--border); background: #1e293b; color: white;
-            font-weight: 700; text-align: left; display: flex; justify-content: space-between;
+            font-weight: 700; text-align: left;
         }
 
-        .btn-pago:active { background: var(--accent); color: black; }
-
-        /* NAVEGACIÓN INFERIOR */
         .nav-bottom {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: #000; border-top: 1px solid var(--border);
@@ -123,11 +110,10 @@
         .nav-item {
             background: none; border: none; color: #475569;
             font-size: 11px; font-weight: 700; display: flex; flex-direction: column;
-            align-items: center; gap: 5px; cursor: pointer;
+            align-items: center; cursor: pointer;
         }
 
         .nav-item.active { color: var(--accent); }
-        .nav-item i { font-size: 20px; }
     </style>
 </head>
 <body>
@@ -140,60 +126,72 @@
 
         <div class="container" id="vista-vender">
             <div class="header-venta">
-                <small>Subtotal Venta</small>
                 <div class="total-actual" id="txt-total-actual">$0</div>
             </div>
 
             <div class="card">
-                <input type="text" id="producto" list="sugerencias" placeholder="Producto...">
+                <input type="text" id="producto" list="sugerencias" placeholder="¿Qué vendes?">
                 <datalist id="sugerencias"></datalist>
                 <div style="display:flex; gap:10px;">
                     <input type="number" id="precio" placeholder="Precio $" inputmode="numeric">
                     <button class="btn-add" onclick="agregarAlCarrito()">+</button>
                 </div>
                 
-                <div id="lista-actual" style="margin-top: 10px;"></div>
-                <button onclick="abrirCierreVenta()" id="btn-finalizar" class="btn-green" style="width:100%; padding:18px; background:var(--accent); border:none; border-radius:12px; font-weight:800; margin-top:15px; display:none;">
-                    ✅ CERRAR VENTA
+                <div id="lista-actual"></div>
+                
+                <button onclick="abrirCierreVenta()" id="btn-finalizar" style="width:100%; padding:18px; background:var(--accent); border:none; border-radius:12px; font-weight:800; margin-top:15px; display:none; cursor:pointer;">
+                    ✅ FINALIZAR VENTA
                 </button>
             </div>
         </div>
 
+        <div class="container" id="vista-bitacora" style="display:none;">
+            <h2 style="color:var(--accent);">Hoy</h2>
+            <div id="lista-ventas-dia"></div>
+        </div>
+
         <div class="container" id="vista-deudores" style="display:none;">
-            <h2 style="color:var(--accent);">👥 Cuentas por Cobrar</h2>
+            <h2 style="color:var(--accent);">Deudores Pendientes</h2>
             <div id="lista-deudores"></div>
         </div>
     </div>
 
     <div id="modal-pago" class="modal">
         <div class="modal-content">
-            <h3 style="margin-top:0;">Selecciona Pago</h3>
-            <button class="btn-pago" onclick="finalizarVenta('Efectivo')">💵 Efectivo <span>></span></button>
-            <button class="btn-pago" onclick="finalizarVenta('Tarjeta')">💳 Tarjeta <span>></span></button>
-            <button class="btn-pago" onclick="mostrarInputFiado()">📝 Fiado (Deuda) <span>></span></button>
+            <h3 style="margin-top:0;">Método de Pago</h3>
+            <button class="btn-pago" onclick="finalizarVenta('Efectivo')">💵 Efectivo</button>
+            <button class="btn-pago" onclick="finalizarVenta('Tarjeta')">💳 Tarjeta</button>
+            <button class="btn-pago" onclick="document.getElementById('seccion-fiado').style.display='block'">📝 Fiado</button>
             
             <div id="seccion-fiado" style="display:none; margin-top:15px;">
                 <input type="text" id="nombre-cliente" placeholder="Nombre del cliente...">
-                <button class="btn-green" style="width:100%; background:var(--accent); padding:10px; border:none; border-radius:8px; font-weight:bold;" onclick="finalizarVenta('Fiado')">GUARDAR DEUDA</button>
+                <button style="width:100%; background:var(--accent); padding:12px; border:none; border-radius:8px; font-weight:bold;" onclick="finalizarVenta('Fiado')">GUARDAR DEUDA</button>
             </div>
             <button onclick="cerrarModal()" style="width:100%; background:none; border:none; color:#64748b; margin-top:15px;">Cancelar</button>
         </div>
     </div>
 
     <nav class="nav-bottom">
-        <button class="nav-item active" onclick="cambiarVista('vender')"><span>🛒</span>Vender</button>
-        <button class="nav-item" onclick="verHistorial()"><span>🗓️</span>Bitácora</button>
-        <button class="nav-item" onclick="cambiarVista('deudores')"><span>👥</span>Deudores</button>
+        <button class="nav-item active" id="btn-nav-vender" onclick="cambiarVista('vender')">🛒<br>Vender</button>
+        <button class="nav-item" id="btn-nav-bitacora" onclick="cambiarVista('bitacora')">🗓️<br>Bitácora</button>
+        <button class="nav-item" id="btn-nav-deudores" onclick="cambiarVista('deudores')">👥<br>Deudores</button>
     </nav>
 
     <script>
         let carrito = [];
         let datosServidor = { productos: [], detalleHoy: [], deudores: [] };
-        const urlScript = "https://script.google.com/macros/s/AKfycbzvl7pnGdYkVyZRhGwX7vZrbkAChnF_0HHoPHW66__2oJTpoETcUnlTPnj5UQWOH7KY9A/exec"; 
+        // COLOCA AQUÍ TU NUEVA URL DE GOOGLE APPS SCRIPT
+        const urlScript = "https://script.google.com/macros/s/AKfycbwVQ-8NZjEHhMdVp2rCZd51T6akzoyabW2pxTxjaRaqFSaBHfIL4D-b5RpbNhnzexuE/exec"; 
+
+        window.onload = () => {
+            fetch(urlScript + "?t=" + Date.now()).then(r => r.json()).then(data => {
+                datosServidor = data;
+                document.getElementById('sugerencias').innerHTML = data.productos.map(p => `<option value="${p}">`).join('');
+            });
+        };
 
         function agregarAlCarrito() {
-            const p = document.getElementById('producto');
-            const pr = document.getElementById('precio');
+            const p = document.getElementById('producto'), pr = document.getElementById('precio');
             if (p.value && pr.value) {
                 carrito.push({ id: Date.now(), producto: p.value, precio: parseInt(pr.value) });
                 p.value = ""; pr.value = "";
@@ -203,64 +201,74 @@
 
         function actualizarVista() {
             const lista = document.getElementById('lista-actual');
-            const btnFin = document.getElementById('btn-finalizar');
+            const total = carrito.reduce((s, i) => s + i.precio, 0);
+            document.getElementById('txt-total-actual').innerText = `$${total.toLocaleString()}`;
             
             lista.innerHTML = carrito.map(item => `
                 <div class="item-fila">
-                    <div class="item-info">
-                        <strong>${item.producto}</strong><br>
-                        <span style="color:var(--accent)">$${item.precio.toLocaleString()}</span>
-                    </div>
-                    <div class="item-acciones">
-                        <button class="btn-accion" onclick="editarItem(${item.id})">✏️</button>
-                        <button class="btn-accion" onclick="eliminarItem(${item.id})">🗑️</button>
+                    <div><strong>${item.producto}</strong><br><small>$${item.precio}</small></div>
+                    <div>
+                        <button onclick="editarItem(${item.id})" style="background:none; border:none;">✏️</button>
+                        <button onclick="eliminarItem(${item.id})" style="background:none; border:none;">🗑️</button>
                     </div>
                 </div>
             `).join('');
-
-            const total = carrito.reduce((s, i) => s + i.precio, 0);
-            document.getElementById('txt-total-actual').innerText = `$${total.toLocaleString()}`;
-            btnFin.style.display = carrito.length > 0 ? 'block' : 'none';
+            document.getElementById('btn-finalizar').style.display = carrito.length > 0 ? 'block' : 'none';
         }
 
-        function eliminarItem(id) {
-            carrito = carrito.filter(i => i.id !== id);
-            actualizarVista();
-        }
-
+        function eliminarItem(id) { carrito = carrito.filter(i => i.id !== id); actualizarVista(); }
         function editarItem(id) {
-            const item = carrito.find(i => i.id === id);
-            document.getElementById('producto').value = item.producto;
-            document.getElementById('precio').value = item.precio;
+            const i = carrito.find(x => x.id === id);
+            document.getElementById('producto').value = i.producto;
+            document.getElementById('precio').value = i.precio;
             eliminarItem(id);
         }
 
         function abrirCierreVenta() { document.getElementById('modal-pago').style.display = 'block'; }
         function cerrarModal() { document.getElementById('modal-pago').style.display = 'none'; }
-        function mostrarInputFiado() { document.getElementById('seccion-fiado').style.display = 'block'; }
 
         function finalizarVenta(metodo) {
             const cliente = metodo === 'Fiado' ? document.getElementById('nombre-cliente').value : 'Venta Directa';
-            if (metodo === 'Fiado' && !cliente) return alert("Escribe el nombre del cliente");
+            if (metodo === 'Fiado' && !cliente) return alert("Falta nombre");
+
+            const btn = document.getElementById('btn-finalizar');
+            btn.innerText = "⏳ Guardando...";
+            btn.disabled = true;
 
             const datosVenta = {
                 items: carrito,
                 total: carrito.reduce((s, i) => s + i.precio, 0),
                 pago: metodo,
-                cliente: cliente,
-                fecha: new Date().toISOString()
+                cliente: cliente
             };
 
-            // Aquí enviarías a Google Sheets
-            console.log("Enviando venta...", datosVenta);
-            alert("Venta guardada como " + metodo);
-            location.reload();
+            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(datosVenta) })
+            .then(() => {
+                alert("Venta guardada!");
+                location.reload();
+            });
         }
 
-        function cambiarVista(vista) {
-            document.getElementById('vista-vender').style.display = vista === 'vender' ? 'block' : 'none';
-            document.getElementById('vista-deudores').style.display = vista === 'deudores' ? 'block' : 'none';
-            // Lógica para marcar botón activo en nav
+        function cambiarVista(v) {
+            document.getElementById('vista-vender').style.display = v === 'vender' ? 'block' : 'none';
+            document.getElementById('vista-bitacora').style.display = v === 'bitacora' ? 'block' : 'none';
+            document.getElementById('vista-deudores').style.display = v === 'deudores' ? 'block' : 'none';
+            
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-nav-' + v).classList.add('active');
+
+            if (v === 'bitacora') renderBitacora();
+            if (v === 'deudores') renderDeudores();
+        }
+
+        function renderBitacora() {
+            const lista = document.getElementById('lista-ventas-dia');
+            lista.innerHTML = datosServidor.detalleHoy.map(v => `<div class="item-fila"><span>${v.hora} - ${v.nombre}</span><span>$${v.precio}</span></div>`).join('') || "Sin ventas";
+        }
+
+        function renderDeudores() {
+            const lista = document.getElementById('lista-deudores');
+            lista.innerHTML = datosServidor.deudores.map(d => `<div class="item-fila" style="border: 1px solid #1E293B; margin-bottom:10px; padding:10px; border-radius:10px;"><div><strong>${d.nombre}</strong><br><small>${d.fecha}</small></div><strong style="color:var(--accent)">$${d.monto}</strong></div>`).join('') || "Nadie debe";
         }
     </script>
 </body>
