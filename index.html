@@ -103,7 +103,7 @@
         let carrito = [];
         let datosServidor = { productos: [], detalleHoy: [], deudores: [] };
         let deudaSeleccionada = null;
-        const urlScript = "https://script.google.com/macros/s/AKfycby1BXSlpWa2TU77FUCsxML9NGo9p3lJjZnZWbxiOewzNSwz6uiQXW3w7hmjFVuRPjbq/exec"; 
+        const urlScript = "https://script.google.com/macros/s/AKfycbxGB9TvznHi9rLS8g4Ukf1j2UKfoIGe2WQ5qe6UXsZ26-JPNaWud9bcZZjEFkslzpzQLg/exec"; 
 
         window.onload = cargarDatos;
 
@@ -203,26 +203,25 @@
         }
 
         function renderDeudores() {
-            const lista = document.getElementById('lista-deudores');
-            if (!datosServidor.deudores || datosServidor.deudores.length === 0) {
-                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Nadie debe nada.</p>";
-                return;
-            }
-            lista.innerHTML = datosServidor.deudores.map(d => `
-                <div class="item-fila" style="border: 1px solid var(--accent); margin-bottom:12px; padding:15px; border-radius:15px; background: rgba(6, 225, 240, 0.02); cursor:pointer;" 
-                     onclick="abrirModalCobro('${d.idVenta}', '${d.nombre}', ${d.monto})">
-                    <div style="flex-grow:1;">
-                        <strong style="font-size:18px; color:var(--text);">${d.nombre}</strong><br>
-                        <small style="color:#64748b;">📅 ${d.fecha} - 🕒 ${d.hora}</small>
-                    </div>
-                    <div style="text-align:right;">
-                        <strong style="color:var(--accent); font-size:22px;">$${d.monto.toLocaleString()}</strong>
-                        <div style="font-size:10px; color:var(--accent); font-weight:bold;">TAP PARA PAGAR</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
+    const lista = document.getElementById('lista-deudores');
+    if (!datosServidor.deudores || datosServidor.deudores.length === 0) {
+        lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Nadie debe nada.</p>";
+        return;
+    }
+    lista.innerHTML = datosServidor.deudores.map(d => `
+        <div class="item-fila" style="border: 1px solid var(--accent); margin-bottom:12px; padding:15px; border-radius:15px; background: rgba(6, 225, 240, 0.02); cursor:pointer;" 
+             onclick="abrirModalCobro('${d.idVenta}', '${d.nombre}', ${d.monto})">
+            <div style="flex-grow:1;">
+                <strong style="font-size:18px; color:var(--text);">${d.nombre}</strong><br>
+                <small style="color:#64748b;">📅 ${d.fecha} - 🕒 ${d.hora}</small>
+            </div>
+            <div style="text-align:right;">
+                <strong style="color:var(--accent); font-size:22px;">$${d.monto.toLocaleString()}</strong>
+                <div style="font-size:10px; color:var(--accent); font-weight:bold;">TAP PARA PAGAR</div>
+            </div>
+        </div>
+    `).join('');
+}
         function abrirModalCobro(idVenta, nombre, monto) {
             deudaSeleccionada = { idVenta, nombre, monto };
             document.getElementById('info-deuda').innerText = `${nombre} pagará $${monto.toLocaleString()}`;
