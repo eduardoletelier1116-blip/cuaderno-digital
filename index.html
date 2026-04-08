@@ -263,7 +263,23 @@
 
         function renderBitacora() {
             const lista = document.getElementById('lista-ventas-dia');
-            lista.innerHTML = datosServidor.detalleHoy.map(v => `<div class="item-fila"><span>${v.hora} - ${v.nombre}</span><span>$${v.precio}</span></div>`).join('') || "Sin ventas";
+            if (datosServidor.detalleHoy.length === 0) {
+                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>No hay ventas hoy aún.</p>";
+                return;
+            }
+            
+            lista.innerHTML = datosServidor.detalleHoy.map(v => `
+                <div class="item-fila" style="border-bottom: 1px solid #1e293b; padding: 15px 0;">
+                    <div style="flex-grow:1;">
+                        <span style="color:var(--accent); font-size:12px; font-weight:700;">${v.hora}</span><br>
+                        <strong style="font-size:16px;">${v.nombre}</strong><br>
+                        <small style="color:#64748b;">Pago: ${v.pago} ${v.cliente !== 'Venta Directa' ? '- ' + v.cliente : ''}</small>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong style="color:var(--accent); font-size:18px;">$${v.precio.toLocaleString()}</strong>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function renderDeudores() {
