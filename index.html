@@ -59,7 +59,13 @@
         </div>
 
         <div class="container" id="vista-bitacora" style="display:none;">
-            <h2 style="color:var(--accent);">Bitácora de Hoy</h2>
+            <h2 style="color:var(--accent); margin-bottom:10px;">Bitácora de Hoy</h2>
+            
+            <div class="card" style="border: 2px solid var(--accent); background: rgba(6, 225, 240, 0.1); text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;">Vendido hoy</div>
+                <div id="total-bitacora-hoy" style="font-size: 42px; font-weight: 900; color: #fff;">$0</div>
+            </div>
+
             <div id="lista-ventas-dia"></div>
         </div>
 
@@ -101,7 +107,7 @@
 
     <script>
         let carrito = [];
-        let datosServidor = { productos: [], detalleHoy: [], deudores: [] };
+        let datosServidor = { productos: [], detalleHoy: [], deudores: [], totalHoy: 0 };
         let deudaSeleccionada = null;
         const urlScript = "https://script.google.com/macros/s/AKfycbxGB9TvznHi9rLS8g4Ukf1j2UKfoIGe2WQ5qe6UXsZ26-JPNaWud9bcZZjEFkslzpzQLg/exec"; 
 
@@ -178,6 +184,13 @@
 
         function renderBitacora() {
             const lista = document.getElementById('lista-ventas-dia');
+            const txtTotalHoy = document.getElementById('total-bitacora-hoy');
+
+            // Actualizar el total del día en la cabecera de la bitácora
+            if (datosServidor.totalHoy) {
+                txtTotalHoy.innerText = `$${datosServidor.totalHoy.toLocaleString()}`;
+            }
+
             if (!datosServidor.detalleHoy || datosServidor.detalleHoy.length === 0) {
                 lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Sin ventas hoy.</p>";
                 return;
@@ -203,25 +216,26 @@
         }
 
         function renderDeudores() {
-    const lista = document.getElementById('lista-deudores');
-    if (!datosServidor.deudores || datosServidor.deudores.length === 0) {
-        lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Nadie debe nada.</p>";
-        return;
-    }
-    lista.innerHTML = datosServidor.deudores.map(d => `
-        <div class="item-fila" style="border: 1px solid var(--accent); margin-bottom:12px; padding:15px; border-radius:15px; background: rgba(6, 225, 240, 0.02); cursor:pointer;" 
-             onclick="abrirModalCobro('${d.idVenta}', '${d.nombre}', ${d.monto})">
-            <div style="flex-grow:1;">
-                <strong style="font-size:18px; color:var(--text);">${d.nombre}</strong><br>
-                <small style="color:#64748b;">📅 ${d.fecha} - 🕒 ${d.hora}</small>
-            </div>
-            <div style="text-align:right;">
-                <strong style="color:var(--accent); font-size:22px;">$${d.monto.toLocaleString()}</strong>
-                <div style="font-size:10px; color:var(--accent); font-weight:bold;">TAP PARA PAGAR</div>
-            </div>
-        </div>
-    `).join('');
-}
+            const lista = document.getElementById('lista-deudores');
+            if (!datosServidor.deudores || datosServidor.deudores.length === 0) {
+                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Nadie debe nada.</p>";
+                return;
+            }
+            lista.innerHTML = datosServidor.deudores.map(d => `
+                <div class="item-fila" style="border: 1px solid var(--accent); margin-bottom:12px; padding:15px; border-radius:15px; background: rgba(6, 225, 240, 0.02); cursor:pointer;" 
+                     onclick="abrirModalCobro('${d.idVenta}', '${d.nombre}', ${d.monto})">
+                    <div style="flex-grow:1;">
+                        <strong style="font-size:18px; color:var(--text);">${d.nombre}</strong><br>
+                        <small style="color:#64748b;">📅 ${d.fecha} - 🕒 ${d.hora}</small>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong style="color:var(--accent); font-size:22px;">$${d.monto.toLocaleString()}</strong>
+                        <div style="font-size:10px; color:var(--accent); font-weight:bold;">TAP PARA PAGAR</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         function abrirModalCobro(idVenta, nombre, monto) {
             deudaSeleccionada = { idVenta, nombre, monto };
             document.getElementById('info-deuda').innerText = `${nombre} pagará $${monto.toLocaleString()}`;
