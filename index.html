@@ -154,6 +154,7 @@
         }
 
         function eliminarItem(id) { carrito = carrito.filter(i => i.id !== id); actualizarVista(); }
+        
         function editarItem(id) {
             const i = carrito.find(x => x.id === id);
             document.getElementById('producto').value = i.producto;
@@ -186,8 +187,7 @@
             const lista = document.getElementById('lista-ventas-dia');
             const txtTotalHoy = document.getElementById('total-bitacora-hoy');
 
-            // Actualizar el total del día en la cabecera de la bitácora
-            if (datosServidor.totalHoy) {
+            if (datosServidor.totalHoy !== undefined) {
                 txtTotalHoy.innerText = `$${datosServidor.totalHoy.toLocaleString()}`;
             }
 
@@ -195,24 +195,65 @@
                 lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Sin ventas hoy.</p>";
                 return;
             }
+
             const agrupadas = {};
             datosServidor.detalleHoy.forEach(it => {
                 if (!agrupadas[it.idVenta]) {
-                    agrupadas[it.idVenta] = { hora: it.hora, pago: it.pago, cliente: it.cliente, productos: [], total: 0 };
+                    agrupadas[it.idVenta] = { idVenta: it.idVenta, hora: it.hora, pago: it.pago, cliente: it.cliente, productos: [], total: 0 };
                 }
                 agrupadas[it.idVenta].productos.push(it);
                 agrupadas[it.idVenta].total += it.precio;
             });
-            lista.innerHTML = Object.values(agrupadas).reverse().map(g => `
+
+            lista.innerHTML = Object.values(agrupadas).map(g => `
                 <div class="card" style="border-color:var(--accent);">
                     <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:5px; margin-bottom:8px;">
                         <span style="color:var(--accent); font-weight:700;">🕒 ${g.hora}</span>
-                        <span style="font-size:12px; color:#64748b;">${g.pago} ${g.cliente !== 'Venta Directa' ? '('+g.cliente+')' : ''}</span>
+                        <div style="display:flex; gap:15px;">
+                            <span onclick="prepararEdicion('${g.idVenta}')" style="cursor:pointer; font-size:16px;">✏️</span>
+                            <span onclick="confirmarEliminacion('${g.idVenta}')" style="cursor:pointer; font-size:16px;">🗑️</span>
+                        </div>
                     </div>
+                    <div style="font-size:11px; color:#64748b; margin-bottom:5px;">${g.pago} ${g.cliente !== 'Venta Directa' ? '('+g.cliente+')' : ''}</div>
                     ${g.productos.map(p => `<div style="display:flex; justify-content:space-between; font-size:14px;"><span>${p.nombre}</span><span>$${p.precio.toLocaleString()}</span></div>`).join('')}
                     <div style="text-align:right; border-top:1px dashed #1e293b; margin-top:8px; padding-top:5px; font-weight:800; color:var(--accent);">Total: $${g.total.toLocaleString()}</div>
                 </div>
             `).join('');
+        }
+
+        // --- FUNCIONES DE MODIFICACIÓN ---
+
+        function confirmarEliminacion(idVenta) {
+            if (confirm("¿Seguro que deseas eliminar esta venta por completo?")) {
+                document.getElementById('loader').style.display = 'flex';
+                fetch(urlScript, { 
+                    method: "POST", 
+                    mode: "no-cors", 
+                    body: JSON.stringify({ accion: "eliminar", idVenta: idVenta }) 
+                }).then(() => { mostrarNotificacion("VENTA ELIMINADA"); });
+            }
+        }
+
+        function prepararEdicion(idVenta) {
+            const ventas = datosServidor.detalleHoy.filter(v => v.idVenta === idVenta);
+            if (ventas.length > 0) {
+                if (confirm("La venta se cargará de nuevo en el carrito para editarla. Se borrará la anterior para que no se duplique. ¿Continuar?")) {
+                    document.getElementById('loader').style.display = 'flex';
+                    // 1. Cargar al carrito local
+                    carrito = ventas.map(v => ({ id: Date.now() + Math.random(), producto: v.nombre, precio: v.precio }));
+                    // 2. Pedir al servidor que borre la vieja
+                    fetch(urlScript, { 
+                        method: "POST", 
+                        mode: "no-cors", 
+                        body: JSON.stringify({ accion: "eliminar", idVenta: idVenta }) 
+                    }).then(() => {
+                        actualizarVista();
+                        cambiarVista('vender');
+                        document.getElementById('loader').style.display = 'none';
+                        alert("Venta cargada. Modifícala y vuelve a finalizar.");
+                    });
+                }
+            }
         }
 
         function renderDeudores() {
