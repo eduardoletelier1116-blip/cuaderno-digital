@@ -38,12 +38,17 @@
         .reporte-fila { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1e293b; }
         .reporte-fila:last-child { border-bottom: none; }
         .reporte-monto { color: var(--accent); font-weight: 900; font-size: 18px; }
-        .grafico-row { margin-bottom: 13px; }
-        .grafico-top { display:flex; justify-content:space-between; gap:10px; font-size:12px; margin-bottom:5px; }
-        .grafico-dia { color:#fff; font-weight:800; }
-        .grafico-valor { color:var(--accent); font-weight:900; }
-        .grafico-track { width:100%; height:14px; background:#111827; border-radius:999px; overflow:hidden; border:1px solid #1e293b; }
-        .grafico-fill { height:100%; background:var(--accent); border-radius:999px; min-width:4px; box-shadow:0 0 12px rgba(6,225,240,.25); }
+        .grafico-scroll { overflow-x:auto; overflow-y:hidden; padding:8px 2px 4px; -webkit-overflow-scrolling:touch; }
+        .grafico-scroll::-webkit-scrollbar { height:6px; }
+        .grafico-scroll::-webkit-scrollbar-thumb { background:#1e293b; border-radius:999px; }
+        .grafico-lateral { display:flex; align-items:flex-end; gap:12px; min-width:max-content; height:230px; padding:8px 2px 2px; }
+        .grafico-columna { width:62px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; flex:0 0 auto; }
+        .grafico-valor { color:var(--accent); font-weight:900; font-size:11px; line-height:1.1; min-height:26px; display:flex; align-items:flex-end; text-align:center; margin-bottom:6px; }
+        .grafico-track-vertical { width:30px; height:145px; background:#111827; border-radius:999px; overflow:hidden; border:1px solid #1e293b; display:flex; align-items:flex-end; justify-content:center; }
+        .grafico-fill-vertical { width:100%; background:var(--accent); border-radius:999px 999px 0 0; min-height:5px; box-shadow:0 0 12px rgba(6,225,240,.25); }
+        .grafico-dia { color:#fff; font-weight:900; font-size:12px; margin-top:8px; }
+        .grafico-cantidad { color:#64748b; font-size:10px; font-weight:700; margin-top:2px; }
+        .grafico-ayuda { color:#64748b; font-size:11px; display:block; margin-top:8px; text-align:center; }
         .pill { display:inline-block; padding:5px 8px; border-radius:999px; background:rgba(6,225,240,.08); border:1px solid rgba(6,225,240,.45); color:var(--accent); font-size:11px; font-weight:800; }
         .muted { color: var(--muted); }
     </style>
@@ -174,7 +179,7 @@
             reportesDiarios: [], reportesMensuales: [], mesesDisponibles: [], reportesPorMes: {}
         };
         let deudaSeleccionada = null;
-        const urlScript = "https://script.google.com/macros/s/AKfycbw5bgwV-OICsEIlAoQblvCnbH1BxiWUNCQTgX5desJ02XrqMfzkMI76OAr00pYIR--ehQ/exec"; 
+        const urlScript = "https://script.google.com/macros/s/AKfycbzNVOvKTKUokhz_Uc3zj2nE5c2fSOa8PU2-TI4VFRcW14mUZ2HMgs_17Uvod2YeVBIl1w/exec"; 
 
         window.onload = cargarDatos;
 
@@ -343,20 +348,26 @@
             }
 
             const maximo = Math.max(...dias.map(d => Number(d.total || 0)), 1);
-            contenedor.innerHTML = dias.map(d => {
-                const porcentaje = Math.max((Number(d.total || 0) / maximo) * 100, 2);
-                return `
-                    <div class="grafico-row">
-                        <div class="grafico-top">
-                            <span class="grafico-dia">Día ${d.dia}</span>
-                            <span class="grafico-valor">${formatoPesos(d.total)}</span>
-                        </div>
-                        <div class="grafico-track">
-                            <div class="grafico-fill" style="width:${porcentaje}%"></div>
-                        </div>
+            contenedor.innerHTML = `
+                <div class="grafico-scroll">
+                    <div class="grafico-lateral">
+                        ${dias.map(d => {
+                            const porcentaje = Math.max((Number(d.total || 0) / maximo) * 100, 3);
+                            return `
+                                <div class="grafico-columna">
+                                    <div class="grafico-valor">${formatoPesos(d.total)}</div>
+                                    <div class="grafico-track-vertical">
+                                        <div class="grafico-fill-vertical" style="height:${porcentaje}%"></div>
+                                    </div>
+                                    <div class="grafico-dia">Día ${d.dia}</div>
+                                    <div class="grafico-cantidad">${d.cantidad || 0} venta(s)</div>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
-                `;
-            }).join('');
+                </div>
+                <small class="grafico-ayuda">Desliza hacia los lados para ver todos los días del mes.</small>
+            `;
         }
 
         function renderDetalleDias(dias) {
