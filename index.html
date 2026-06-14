@@ -108,16 +108,15 @@
         .grafico-scroll { overflow-x: auto; overflow-y: hidden; padding: 8px 2px 4px; -webkit-overflow-scrolling: touch; }
         .grafico-scroll::-webkit-scrollbar { height: 6px; }
         .grafico-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 999px; }
-        .grafico-lateral { display: flex; align-items: flex-end; gap: 12px; min-width: max-content; height: 245px; padding: 8px 2px 2px; }
-        .grafico-grupo { width: 64px; height: 235px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 0 0 auto; }
-        .grafico-valores { min-height: 37px; font-size: 9px; font-weight: 800; line-height: 1.35; text-align: center; margin-bottom: 5px; }
-        .grafico-barras { height: 145px; display: flex; align-items: flex-end; gap: 7px; }
-        .grafico-track { width: 34px; height: 145px; background: #111827; border-radius: 999px; overflow: hidden; border: 1px solid #1e293b; display: flex; align-items: flex-end; }
+        .grafico-lateral { display: flex; align-items: flex-end; gap: 6px; min-width: max-content; height: 215px; padding: 6px 0 2px; }
+        .grafico-grupo { width: 46px; height: 205px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 0 0 auto; }
+        .grafico-barras { height: 145px; display: flex; align-items: flex-end; }
+        .grafico-track { width: 26px; height: 145px; background: #111827; border-radius: 999px; overflow: hidden; border: 1px solid #1e293b; display: flex; align-items: flex-end; }
         .grafico-fill { width: 100%; min-height: 3px; border-radius: 999px 999px 0 0; }
         .grafico-fill.ingreso { background: var(--accent); box-shadow: 0 0 10px rgba(6,225,240,.25); }
         .grafico-fill.egreso { background: var(--expense); box-shadow: 0 0 10px rgba(255,107,107,.2); }
-        .grafico-dia { color: #fff; font-weight: 900; font-size: 12px; margin-top: 7px; }
-        .grafico-cantidad { color: var(--muted); font-size: 9px; font-weight: 700; margin-top: 2px; text-align: center; }
+        .grafico-dia { color: #fff; font-weight: 900; font-size: 10px; margin-top: 6px; white-space: nowrap; }
+        .grafico-cantidad { color: var(--accent); font-size: 9px; font-weight: 800; margin-top: 2px; text-align: center; white-space: nowrap; }
         .grafico-ayuda { color: var(--muted); font-size: 11px; display: block; margin-top: 8px; text-align: center; }
         .leyenda { display: flex; gap: 14px; align-items: center; font-size: 11px; color: var(--muted); margin-top: 10px; }
         .leyenda span { display: flex; align-items: center; gap: 5px; }
@@ -641,15 +640,12 @@
                         ${diasConVentas.map(d => {
                             const altoIngreso = Math.max((Number(d.ingresos || 0) / maximo) * 100, 3);
                             return `
-                                <div class="grafico-grupo">
-                                    <div class="grafico-valores">
-                                        <span class="texto-ingreso">${formatoPesosCompacto(d.ingresos)}</span>
-                                    </div>
+                                <div class="grafico-grupo" title="Día ${escaparAtributo(d.dia)}: ${escaparAtributo(formatoPesos(d.ingresos))}">
                                     <div class="grafico-barras">
                                         <div class="grafico-track"><div class="grafico-fill ingreso" style="height:${altoIngreso}%"></div></div>
                                     </div>
                                     <div class="grafico-dia">Día ${escaparHtml(d.dia)}</div>
-                                    <div class="grafico-cantidad">${d.cantidadVentas || 0} venta(s)</div>
+                                    <div class="grafico-cantidad">${formatoPesosCompacto(d.ingresos)}</div>
                                 </div>
                             `;
                         }).join('')}
