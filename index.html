@@ -5,56 +5,142 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FastBook Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        :root { --accent: #06e1f0; --bg: #000000; --card: #0A0E17; --text: #ffffff; --border: #1E293B; --muted:#64748b; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 90px; }
+        :root {
+            --accent: #06e1f0;
+            --expense: #ff6b6b;
+            --positive: #45e58a;
+            --warning: #fbbf24;
+            --bg: #000000;
+            --card: #0A0E17;
+            --text: #ffffff;
+            --border: #1E293B;
+            --muted: #64748b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 92px;
+        }
+
         .app-wrapper { width: 100%; max-width: 500px; min-height: 100vh; }
         .navbar { background: var(--bg); padding: 12px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid var(--accent); }
         .img-icono { height: 35px; }
         .logo-texto-custom { font-size: 22px; font-weight: 800; }
         .logo-texto-custom span { color: var(--accent); }
         .container { padding: 20px; }
-        .header-venta { text-align: center; padding: 20px; background: rgba(6, 225, 240, 0.05); border-radius: 15px; margin-bottom: 20px; border: 1px dashed var(--accent); }
-        .total-actual { font-size: 55px; font-weight: 900; color: var(--accent); text-shadow: 0 0 15px rgba(6, 225, 240, 0.3); }
         .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 15px; }
-        input, select { width: 100%; padding: 15px; border: 2px solid var(--border); border-radius: 10px; background: #0A0E17; color: white; box-sizing: border-box; font-size: 16px; margin-bottom: 10px; }
-        select { cursor:pointer; font-weight:800; color:var(--accent); }
-        .item-fila { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1e293b; }
-        .btn-add { background: var(--accent); color: black; border: none; border-radius: 10px; width: 60px; height: 54px; font-size: 25px; font-weight: bold; cursor: pointer; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; padding: 20px; box-sizing: border-box; }
-        .modal-content { background: var(--card); border: 1px solid var(--accent); border-radius: 20px; padding: 25px; max-width: 400px; margin: 50px auto; }
-        .nav-bottom { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 2000; }
-        .nav-item { background: none; border: none; color: #475569; font-size: 11px; font-weight: 700; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .nav-item.active { color: var(--accent); }
-        .btn-pago { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border); background: #1e293b; color: white; font-weight: 700; text-align: left; }
-        .loader-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
-        .spinner { width: 50px; height: 50px; border: 5px solid rgba(6, 225, 240, 0.2); border-top: 5px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loader-text { color: var(--accent); font-weight: 700; font-size: 18px; margin-top: 10px; }
-        .reporte-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-        .reporte-kpi { background: rgba(6, 225, 240, 0.08); border: 1px solid var(--accent); border-radius: 16px; padding: 15px; text-align: center; min-height: 72px; }
-        .reporte-kpi small { color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 10px; letter-spacing: .7px; }
-        .reporte-kpi div { font-size: 22px; font-weight: 900; margin-top: 6px; }
-        .reporte-fila { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1e293b; }
-        .reporte-fila:last-child { border-bottom: none; }
-        .reporte-monto { color: var(--accent); font-weight: 900; font-size: 18px; }
-        .grafico-scroll { overflow-x:auto; overflow-y:hidden; padding:8px 2px 4px; -webkit-overflow-scrolling:touch; }
-        .grafico-scroll::-webkit-scrollbar { height:6px; }
-        .grafico-scroll::-webkit-scrollbar-thumb { background:#1e293b; border-radius:999px; }
-        .grafico-lateral { display:flex; align-items:flex-end; gap:12px; min-width:max-content; height:230px; padding:8px 2px 2px; }
-        .grafico-columna { width:62px; height:220px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; flex:0 0 auto; }
-        .grafico-valor { color:var(--accent); font-weight:900; font-size:11px; line-height:1.1; min-height:26px; display:flex; align-items:flex-end; text-align:center; margin-bottom:6px; }
-        .grafico-track-vertical { width:30px; height:145px; background:#111827; border-radius:999px; overflow:hidden; border:1px solid #1e293b; display:flex; align-items:flex-end; justify-content:center; }
-        .grafico-fill-vertical { width:100%; background:var(--accent); border-radius:999px 999px 0 0; min-height:5px; box-shadow:0 0 12px rgba(6,225,240,.25); }
-        .grafico-dia { color:#fff; font-weight:900; font-size:12px; margin-top:8px; }
-        .grafico-cantidad { color:#64748b; font-size:10px; font-weight:700; margin-top:2px; }
-        .grafico-ayuda { color:#64748b; font-size:11px; display:block; margin-top:8px; text-align:center; }
-        .pill { display:inline-block; padding:5px 8px; border-radius:999px; background:rgba(6,225,240,.08); border:1px solid rgba(6,225,240,.45); color:var(--accent); font-size:11px; font-weight:800; }
+        .header-venta { text-align: center; padding: 20px; background: rgba(6,225,240,.05); border-radius: 15px; margin-bottom: 20px; border: 1px dashed var(--accent); }
+        .total-actual { font-size: 55px; font-weight: 900; color: var(--accent); text-shadow: 0 0 15px rgba(6,225,240,.3); }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: #0A0E17;
+            color: white;
+            font-family: inherit;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        textarea { min-height: 78px; resize: vertical; }
+        select { cursor: pointer; }
+        label { display: block; font-size: 11px; color: var(--accent); font-weight: 800; text-transform: uppercase; margin: 2px 0 6px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .form-grid > div { min-width: 0; }
+        .full { grid-column: 1 / -1; }
         .muted { color: var(--muted); }
+
+        .item-fila { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #1e293b; }
+        .item-fila:last-child { border-bottom: none; }
+        .btn-add { background: var(--accent); color: black; border: none; border-radius: 10px; width: 60px; height: 54px; font-size: 25px; font-weight: bold; cursor: pointer; flex: 0 0 auto; }
+        .btn-principal { width: 100%; padding: 16px; background: var(--accent); color: #000; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; }
+        .btn-secundario { width: 100%; padding: 13px; background: #1e293b; color: #fff; border: 1px solid var(--border); border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 8px; }
+        .btn-icono { border: none; background: none; color: white; font-size: 17px; cursor: pointer; padding: 5px; }
+        .btn-pago { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border); background: #1e293b; color: white; font-weight: 700; text-align: left; }
+
+        .nav-bottom { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 9px 2px; z-index: 2000; }
+        .nav-item { flex: 1; background: none; border: none; color: #475569; font-size: 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; cursor: pointer; min-width: 0; }
+        .nav-item .icono { font-size: 18px; line-height: 20px; }
+        .nav-item.active { color: var(--accent); }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.9); z-index: 3000; padding: 20px; overflow-y: auto; }
+        .modal-content { background: var(--card); border: 1px solid var(--accent); border-radius: 20px; padding: 25px; max-width: 400px; margin: 50px auto; }
+        .loader-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid rgba(6,225,240,.2); border-top: 5px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-text { color: var(--accent); font-weight: 700; font-size: 18px; margin-top: 10px; }
+
+        .reporte-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .reporte-kpi { background: rgba(6,225,240,.07); border: 1px solid var(--border); border-radius: 16px; padding: 13px 8px; text-align: center; min-height: 78px; }
+        .reporte-kpi.ingreso { border-color: rgba(6,225,240,.65); }
+        .reporte-kpi.egreso { border-color: rgba(255,107,107,.65); }
+        .reporte-kpi.balance { border-color: rgba(69,229,138,.65); }
+        .reporte-kpi.iva { border-color: rgba(251,191,36,.65); }
+        .reporte-kpi small { color: var(--muted); font-weight: 800; text-transform: uppercase; font-size: 9px; letter-spacing: .5px; }
+        .reporte-kpi div { font-size: 19px; font-weight: 900; margin-top: 7px; word-break: break-word; }
+        .texto-ingreso { color: var(--accent); }
+        .texto-egreso { color: var(--expense); }
+        .texto-positivo { color: var(--positive); }
+        .texto-warning { color: var(--warning); }
+
+        .reporte-fila { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #1e293b; }
+        .reporte-fila:last-child { border-bottom: none; }
+        .montos-dia { text-align: right; font-size: 12px; line-height: 1.55; flex: 0 0 auto; }
+        .pill { display: inline-block; padding: 5px 8px; border-radius: 999px; background: rgba(6,225,240,.08); border: 1px solid rgba(6,225,240,.45); color: var(--accent); font-size: 11px; font-weight: 800; }
+
+        .resumen-compra { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 10px; }
+        .resumen-compra > div { background: #111827; border: 1px solid var(--border); border-radius: 12px; padding: 10px 5px; text-align: center; }
+        .resumen-compra small { display: block; color: var(--muted); font-size: 9px; font-weight: 800; text-transform: uppercase; }
+        .resumen-compra strong { display: block; margin-top: 5px; font-size: 14px; }
+
+        .grafico-scroll { overflow-x: auto; overflow-y: hidden; padding: 8px 2px 4px; -webkit-overflow-scrolling: touch; }
+        .grafico-scroll::-webkit-scrollbar { height: 6px; }
+        .grafico-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 999px; }
+        .grafico-lateral { display: flex; align-items: flex-end; gap: 12px; min-width: max-content; height: 245px; padding: 8px 2px 2px; }
+        .grafico-grupo { width: 84px; height: 235px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 0 0 auto; }
+        .grafico-valores { min-height: 37px; font-size: 9px; font-weight: 800; line-height: 1.35; text-align: center; margin-bottom: 5px; }
+        .grafico-barras { height: 145px; display: flex; align-items: flex-end; gap: 7px; }
+        .grafico-track { width: 25px; height: 145px; background: #111827; border-radius: 999px; overflow: hidden; border: 1px solid #1e293b; display: flex; align-items: flex-end; }
+        .grafico-fill { width: 100%; min-height: 3px; border-radius: 999px 999px 0 0; }
+        .grafico-fill.ingreso { background: var(--accent); box-shadow: 0 0 10px rgba(6,225,240,.25); }
+        .grafico-fill.egreso { background: var(--expense); box-shadow: 0 0 10px rgba(255,107,107,.2); }
+        .grafico-dia { color: #fff; font-weight: 900; font-size: 12px; margin-top: 7px; }
+        .grafico-cantidad { color: var(--muted); font-size: 9px; font-weight: 700; margin-top: 2px; text-align: center; }
+        .grafico-ayuda { color: var(--muted); font-size: 11px; display: block; margin-top: 8px; text-align: center; }
+        .leyenda { display: flex; gap: 14px; align-items: center; font-size: 11px; color: var(--muted); margin-top: 10px; }
+        .leyenda span { display: flex; align-items: center; gap: 5px; }
+        .leyenda i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+        .leyenda .l-ingreso { background: var(--accent); }
+        .leyenda .l-egreso { background: var(--expense); }
+
+        .compra-card { border-color: rgba(255,107,107,.45); }
+        .compra-cabecera { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid #1e293b; }
+        .tag-iva { font-size: 9px; font-weight: 900; border-radius: 999px; padding: 4px 7px; }
+        .tag-iva.si { color: var(--positive); border: 1px solid rgba(69,229,138,.5); }
+        .tag-iva.no { color: var(--muted); border: 1px solid var(--border); }
+
+        @media (max-width: 360px) {
+            .container { padding: 15px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .full { grid-column: auto; }
+            .nav-item { font-size: 9px; }
+            .reporte-kpi div { font-size: 17px; }
+        }
     </style>
 </head>
 <body>
-
     <div id="loader" class="loader-overlay">
         <div class="spinner"></div>
         <div id="loader-mensaje" class="loader-text">PROCESANDO...</div>
@@ -66,67 +152,101 @@
             <div class="logo-texto-custom"><span>Fast</span>Book</div>
         </div>
 
+        <!-- VENDER -->
         <div class="container" id="vista-vender">
             <div class="header-venta"><div class="total-actual" id="txt-total-actual">$0</div></div>
             <div class="card">
-                <input type="text" id="producto" list="sugerencias" placeholder="¿Qué vendes?"><datalist id="sugerencias"></datalist>
+                <input type="text" id="producto" list="sugerencias" placeholder="¿Qué vendes?">
+                <datalist id="sugerencias"></datalist>
                 <div style="display:flex; gap:10px;">
                     <input type="number" id="precio" placeholder="Precio $" inputmode="numeric">
                     <button class="btn-add" onclick="agregarAlCarrito()">+</button>
                 </div>
                 <div id="lista-actual"></div>
-                <button onclick="abrirCierreVenta()" id="btn-finalizar" style="width:100%; padding:18px; background:var(--accent); border:none; border-radius:12px; font-weight:800; margin-top:15px; display:none; cursor:pointer;">✅ FINALIZAR VENTA</button>
+                <button onclick="abrirCierreVenta()" id="btn-finalizar" class="btn-principal" style="margin-top:15px; display:none;">✅ FINALIZAR VENTA</button>
             </div>
         </div>
 
+        <!-- BITÁCORA -->
         <div class="container" id="vista-bitacora" style="display:none;">
             <h2 style="color:var(--accent); margin-bottom:10px;">Bitácora de Hoy</h2>
-            <div class="card" style="border: 2px solid var(--accent); background: rgba(6, 225, 240, 0.1); text-align: center; margin-bottom: 20px;">
-                <div style="font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;">Vendido hoy</div>
-                <div id="total-bitacora-hoy" style="font-size: 42px; font-weight: 900; color: #fff;">$0</div>
+            <div class="card" style="border:2px solid var(--accent); background:rgba(6,225,240,.1); text-align:center;">
+                <div style="font-size:12px; font-weight:700; color:var(--accent); text-transform:uppercase;">Vendido hoy</div>
+                <div id="total-bitacora-hoy" style="font-size:42px; font-weight:900;">$0</div>
             </div>
             <div id="lista-ventas-dia"></div>
         </div>
 
+        <!-- COMPRAS -->
+        <div class="container" id="vista-compras" style="display:none;">
+            <h2 style="color:var(--expense); margin-bottom:10px;">Registrar Compra</h2>
+
+            <div class="card" style="border-color:rgba(255,107,107,.65); text-align:center;">
+                <small style="color:var(--expense); font-weight:800; text-transform:uppercase;">Comprado hoy</small>
+                <div id="total-compras-hoy" style="font-size:34px; font-weight:900; margin-top:6px;">$0</div>
+            </div>
+
+            <div class="card">
+                <input type="hidden" id="compra-fecha">
+
+                <label for="compra-proveedor">¿Dónde compraste?</label>
+                <input type="text" id="compra-proveedor" placeholder="Ej.: Distribuidora, supermercado o proveedor">
+
+                <label for="compra-total">Valor total con IVA incluido</label>
+                <input type="number" id="compra-total" placeholder="Total $" inputmode="numeric">
+
+                <small class="muted">La fecha y hora se registran automáticamente. El sistema calcula el neto y el IVA incluido para el reporte mensual.</small>
+
+                <button class="btn-principal" id="btn-guardar-compra" onclick="guardarCompra()" style="margin-top:14px;">🧾 GUARDAR COMPRA</button>
+                <button class="btn-secundario" id="btn-cancelar-edicion-compra" onclick="limpiarFormularioCompra()" style="display:none;">Cancelar edición</button>
+            </div>
+
+            <h3 style="color:var(--expense);">Compras recientes</h3>
+            <div id="lista-compras"></div>
+        </div>
+
+        <!-- DEUDORES -->
         <div class="container" id="vista-deudores" style="display:none;">
             <h2 style="color:var(--accent);">Deudores Pendientes</h2>
             <div id="lista-deudores"></div>
         </div>
 
+        <!-- REPORTES -->
         <div class="container" id="vista-reportes" style="display:none;">
-            <h2 style="color:var(--accent); margin-bottom:10px;">Reportes de Ventas</h2>
+            <h2 style="color:var(--accent); margin-bottom:10px;">Ingresos y Egresos</h2>
 
             <div class="card">
-                <label style="font-size:12px; color:var(--accent); font-weight:800; text-transform:uppercase;">Seleccionar mes</label>
+                <label for="selector-mes-reportes">Seleccionar mes</label>
                 <select id="selector-mes-reportes" onchange="renderReportes()"></select>
-                <small class="muted">El gráfico usa las ventas históricas de la hoja Ventas.</small>
+                <small class="muted">Compara ventas y compras registradas en la aplicación.</small>
             </div>
 
             <div class="reporte-grid">
-                <div class="reporte-kpi">
-                    <small>Vendido hoy</small>
-                    <div id="reporte-total-hoy">$0</div>
-                </div>
-                <div class="reporte-kpi">
-                    <small>Mes seleccionado</small>
-                    <div id="reporte-total-mes">$0</div>
-                </div>
-                <div class="reporte-kpi">
-                    <small>Mejor día</small>
-                    <div id="reporte-mejor-dia">-</div>
-                </div>
-                <div class="reporte-kpi">
-                    <small>Ventas</small>
-                    <div id="reporte-cantidad-ventas">0</div>
-                </div>
+                <div class="reporte-kpi ingreso"><small>Ingresos</small><div class="texto-ingreso" id="reporte-ingresos">$0</div></div>
+                <div class="reporte-kpi egreso"><small>Egresos</small><div class="texto-egreso" id="reporte-egresos">$0</div></div>
+                <div class="reporte-kpi balance"><small>Balance</small><div class="texto-positivo" id="reporte-balance">$0</div></div>
+                <div class="reporte-kpi"><small>Mejor día venta</small><div id="reporte-mejor-dia">-</div></div>
+                <div class="reporte-kpi iva"><small>IVA débito est.</small><div class="texto-warning" id="reporte-iva-debito">$0</div></div>
+                <div class="reporte-kpi iva"><small>IVA crédito</small><div class="texto-warning" id="reporte-iva-credito">$0</div></div>
+                <div class="reporte-kpi iva"><small>IVA por pagar est.</small><div class="texto-warning" id="reporte-iva-pagar">$0</div></div>
+                <div class="reporte-kpi"><small>Compras / ventas</small><div id="reporte-cantidades">0 / 0</div></div>
+            </div>
+
+            <div class="card" id="tarjeta-remanente" style="display:none; border-color:rgba(69,229,138,.65); text-align:center;">
+                <small style="color:var(--positive); font-weight:800; text-transform:uppercase;">Remanente IVA estimado</small>
+                <div id="reporte-remanente" style="font-size:28px; font-weight:900; color:var(--positive); margin-top:6px;">$0</div>
             </div>
 
             <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px;">
-                    <h3 style="margin:0; color:var(--accent);">📊 Venta diaria</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px;">
+                    <h3 style="margin:0; color:var(--accent);">📊 Comparativo diario</h3>
                     <span class="pill" id="reporte-mes-titulo">Mes</span>
                 </div>
                 <div id="grafico-reportes-mes"></div>
+                <div class="leyenda">
+                    <span><i class="l-ingreso"></i> Ingresos</span>
+                    <span><i class="l-egreso"></i> Egresos</span>
+                </div>
             </div>
 
             <div class="card">
@@ -135,12 +255,17 @@
             </div>
 
             <div class="card">
-                <h3 style="margin-top:0; color:var(--accent);">🗓️ Resumen por mes</h3>
+                <h3 style="margin-top:0; color:var(--accent);">🗓️ Resumen mensual</h3>
                 <div id="lista-reportes-mes"></div>
+            </div>
+
+            <div class="card" style="border-style:dashed;">
+                <small class="muted">El cálculo de IVA es una estimación interna: supone que las ventas registradas incluyen IVA de 19% y solo descuenta compras marcadas como crédito fiscal.</small>
             </div>
         </div>
     </div>
 
+    <!-- MODALES -->
     <div id="modal-pago" class="modal">
         <div class="modal-content">
             <h3 style="margin-top:0;">Método de Pago</h3>
@@ -149,7 +274,7 @@
             <button class="btn-pago" onclick="document.getElementById('seccion-fiado').style.display='block'">📝 Fiado</button>
             <div id="seccion-fiado" style="display:none; margin-top:15px;">
                 <input type="text" id="nombre-cliente" placeholder="Nombre del cliente...">
-                <button style="width:100%; background:var(--accent); padding:12px; border:none; border-radius:8px; font-weight:bold; color:black;" onclick="finalizarVenta('Fiado')">GUARDAR DEUDA</button>
+                <button class="btn-principal" onclick="finalizarVenta('Fiado')">GUARDAR DEUDA</button>
             </div>
             <button onclick="cerrarModal()" style="width:100%; background:none; border:none; color:#64748b; margin-top:15px;">Cancelar</button>
         </div>
@@ -158,330 +283,518 @@
     <div id="modal-cobro" class="modal">
         <div class="modal-content">
             <h3 style="margin-top:0; color:var(--accent);">Cobrar Deuda</h3>
-            <p id="info-deuda" style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;"></p>
+            <p id="info-deuda" style="background:rgba(255,255,255,.05); padding:10px; border-radius:10px;"></p>
             <input type="text" id="vendedor-cobro" placeholder="¿Quién recibe el dinero?">
-            <button style="width:100%; background:var(--accent); padding:15px; border:none; border-radius:12px; font-weight:800; color:black; cursor:pointer;" onclick="procesarCobro()">REGISTRAR PAGO</button>
+            <button class="btn-principal" onclick="procesarCobro()">REGISTRAR PAGO</button>
             <button onclick="document.getElementById('modal-cobro').style.display='none'" style="width:100%; background:none; border:none; color:#64748b; margin-top:15px;">Cancelar</button>
         </div>
     </div>
 
     <nav class="nav-bottom">
-        <button class="nav-item active" id="btn-nav-vender" onclick="cambiarVista('vender')">🛒<br>Vender</button>
-        <button class="nav-item" id="btn-nav-bitacora" onclick="cambiarVista('bitacora')">🗓️<br>Bitácora</button>
-        <button class="nav-item" id="btn-nav-deudores" onclick="cambiarVista('deudores')">👥<br>Deudores</button>
-        <button class="nav-item" id="btn-nav-reportes" onclick="cambiarVista('reportes')">📊<br>Reportes</button>
+        <button class="nav-item active" id="btn-nav-vender" onclick="cambiarVista('vender')"><span class="icono">🛒</span>Vender</button>
+        <button class="nav-item" id="btn-nav-bitacora" onclick="cambiarVista('bitacora')"><span class="icono">🗓️</span>Bitácora</button>
+        <button class="nav-item" id="btn-nav-compras" onclick="cambiarVista('compras')"><span class="icono">🧾</span>Compras</button>
+        <button class="nav-item" id="btn-nav-deudores" onclick="cambiarVista('deudores')"><span class="icono">👥</span>Deudores</button>
+        <button class="nav-item" id="btn-nav-reportes" onclick="cambiarVista('reportes')"><span class="icono">📊</span>Reportes</button>
     </nav>
 
     <script>
         let carrito = [];
-        let datosServidor = { 
-            productos: [], detalleHoy: [], deudores: [], totalHoy: 0, totalMes: 0, 
-            reportesDiarios: [], reportesMensuales: [], mesesDisponibles: [], reportesPorMes: {}
-        };
+        let compraEditandoId = null;
         let deudaSeleccionada = null;
-        const urlScript = "https://script.google.com/macros/s/AKfycbzNVOvKTKUokhz_Uc3zj2nE5c2fSOa8PU2-TI4VFRcW14mUZ2HMgs_17Uvod2YeVBIl1w/exec"; 
+        let datosServidor = {
+            productos: [], detalleHoy: [], deudores: [], comprasRecientes: [],
+            totalHoy: 0, totalMes: 0, totalComprasHoy: 0,
+            reportesMensuales: [], mesesDisponibles: [], reportesPorMes: {}
+        };
 
-        window.onload = cargarDatos;
+        const urlScript = "https://script.google.com/macros/s/AKfycby65dI4wDC0tecG06Hgrix_upQ5FInEt8vNVxbPRKy2IGTQAy_ntH3oZFxz90jlTcXhog/exec";
+
+        window.onload = function() {
+            document.getElementById('compra-fecha').value = fechaLocalInput();
+            cargarDatos();
+        };
 
         function cargarDatos() {
-            fetch(urlScript + "?t=" + Date.now()).then(r => r.json()).then(data => {
-                datosServidor = data;
-                document.getElementById('sugerencias').innerHTML = (data.productos || []).map(p => `<option value="${p}">`).join('');
-                renderBitacora();
-                renderDeudores();
-                renderReportes();
-            }).catch(err => {
-                console.error(err);
-                alert("No se pudieron cargar los datos del servidor.");
-            });
+            fetch(urlScript + "?t=" + Date.now())
+                .then(r => r.json())
+                .then(data => {
+                    datosServidor = Object.assign(datosServidor, data || {});
+                    document.getElementById('sugerencias').innerHTML = (datosServidor.productos || []).map(p => `<option value="${escaparAtributo(p)}">`).join('');
+                    renderBitacora();
+                    renderCompras();
+                    renderDeudores();
+                    renderReportes();
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert("No se pudieron cargar los datos del servidor.");
+                });
+        }
+
+        function mostrarLoader(mensaje) {
+            document.getElementById('loader-mensaje').innerText = mensaje || "PROCESANDO...";
+            document.getElementById('loader-mensaje').style.color = "var(--accent)";
+            document.getElementById('loader').style.display = 'flex';
         }
 
         function mostrarNotificacion(mensaje) {
             const txt = document.getElementById('loader-mensaje');
             txt.innerText = "✅ " + mensaje;
             txt.style.color = "#00ff00";
-            setTimeout(() => { location.reload(); }, 1200);
+            setTimeout(() => location.reload(), 1100);
         }
 
+        // ---------------- VENTAS ----------------
         function agregarAlCarrito() {
-            const p = document.getElementById('producto'), pr = document.getElementById('precio');
-            if (p.value && pr.value) {
-                carrito.push({ id: Date.now(), producto: p.value, precio: parseInt(pr.value) });
-                p.value = ""; pr.value = ""; actualizarVista();
-            }
+            const producto = document.getElementById('producto');
+            const precio = document.getElementById('precio');
+            const monto = Number(precio.value || 0);
+
+            if (!producto.value.trim() || monto <= 0) return alert("Ingresa producto y precio.");
+
+            carrito.push({ id: Date.now() + Math.random(), producto: producto.value.trim(), precio: monto });
+            producto.value = "";
+            precio.value = "";
+            actualizarVistaVenta();
         }
 
-        function actualizarVista() {
-            const lista = document.getElementById('lista-actual');
-            const total = carrito.reduce((s, i) => s + Number(i.precio || 0), 0);
+        function actualizarVistaVenta() {
+            const total = carrito.reduce((s, item) => s + Number(item.precio || 0), 0);
             document.getElementById('txt-total-actual').innerText = formatoPesos(total);
-            lista.innerHTML = carrito.map(item => `
+            document.getElementById('lista-actual').innerHTML = carrito.map(item => `
                 <div class="item-fila">
-                    <div><strong>${item.producto}</strong><br><small>${formatoPesos(item.precio)}</small></div>
-                    <div style="display:flex; gap:15px;">
-                        <span onclick="editarItem(${item.id})" style="cursor:pointer;">✏️</span>
-                        <span onclick="eliminarItem(${item.id})" style="cursor:pointer;">🗑️</span>
+                    <div><strong>${escaparHtml(item.producto)}</strong><br><small>${formatoPesos(item.precio)}</small></div>
+                    <div>
+                        <button class="btn-icono" onclick="editarItem(${item.id})">✏️</button>
+                        <button class="btn-icono" onclick="eliminarItem(${item.id})">🗑️</button>
                     </div>
                 </div>
             `).join('');
-            document.getElementById('btn-finalizar').style.display = carrito.length > 0 ? 'block' : 'none';
+            document.getElementById('btn-finalizar').style.display = carrito.length ? 'block' : 'none';
         }
 
-        function eliminarItem(id) { carrito = carrito.filter(i => i.id !== id); actualizarVista(); }
-        
+        function eliminarItem(id) {
+            carrito = carrito.filter(item => item.id !== id);
+            actualizarVistaVenta();
+        }
+
         function editarItem(id) {
-            const i = carrito.find(x => x.id === id);
-            document.getElementById('producto').value = i.producto;
-            document.getElementById('precio').value = i.precio;
+            const item = carrito.find(x => x.id === id);
+            if (!item) return;
+            document.getElementById('producto').value = item.producto;
+            document.getElementById('precio').value = item.precio;
             eliminarItem(id);
         }
 
         function abrirCierreVenta() { document.getElementById('modal-pago').style.display = 'block'; }
-        function cerrarModal() { document.getElementById('modal-pago').style.display = 'none'; document.getElementById('seccion-fiado').style.display = 'none'; }
-
-        function finalizarVenta(metodo) {
-            const cliente = metodo === 'Fiado' ? document.getElementById('nombre-cliente').value : 'Venta Directa';
-            if (metodo === 'Fiado' && !cliente) return alert("Ingresa el nombre del cliente");
-            document.getElementById('loader').style.display = 'flex';
-            cerrarModal();
-            const datosVenta = { items: carrito, total: carrito.reduce((s, i) => s + Number(i.precio || 0), 0), pago: metodo, cliente: cliente };
-            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(datosVenta) })
-            .then(() => { mostrarNotificacion("VENTA GUARDADA"); });
+        function cerrarModal() {
+            document.getElementById('modal-pago').style.display = 'none';
+            document.getElementById('seccion-fiado').style.display = 'none';
         }
 
-        function cambiarVista(v) {
-            document.getElementById('vista-vender').style.display = v === 'vender' ? 'block' : 'none';
-            document.getElementById('vista-bitacora').style.display = v === 'bitacora' ? 'block' : 'none';
-            document.getElementById('vista-deudores').style.display = v === 'deudores' ? 'block' : 'none';
-            document.getElementById('vista-reportes').style.display = v === 'reportes' ? 'block' : 'none';
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-nav-' + v).classList.add('active');
+        function finalizarVenta(metodo) {
+            const cliente = metodo === 'Fiado' ? document.getElementById('nombre-cliente').value.trim() : 'Venta Directa';
+            if (!carrito.length) return alert("No hay productos en la venta.");
+            if (metodo === 'Fiado' && !cliente) return alert("Ingresa el nombre del cliente.");
+
+            mostrarLoader("GUARDANDO VENTA...");
+            cerrarModal();
+
+            const datosVenta = {
+                items: carrito,
+                total: carrito.reduce((s, item) => s + Number(item.precio || 0), 0),
+                pago: metodo,
+                cliente: cliente
+            };
+
+            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(datosVenta) })
+                .then(() => mostrarNotificacion("VENTA GUARDADA"));
         }
 
         function renderBitacora() {
+            document.getElementById('total-bitacora-hoy').innerText = formatoPesos(datosServidor.totalHoy || 0);
             const lista = document.getElementById('lista-ventas-dia');
-            const txtTotalHoy = document.getElementById('total-bitacora-hoy');
+            const detalle = datosServidor.detalleHoy || [];
 
-            txtTotalHoy.innerText = formatoPesos(datosServidor.totalHoy || 0);
-
-            if (!datosServidor.detalleHoy || datosServidor.detalleHoy.length === 0) {
+            if (!detalle.length) {
                 lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Sin ventas hoy.</p>";
                 return;
             }
 
             const agrupadas = {};
-            datosServidor.detalleHoy.forEach(it => {
-                if (!agrupadas[it.idVenta]) {
-                    agrupadas[it.idVenta] = { idVenta: it.idVenta, hora: it.hora, pago: it.pago, cliente: it.cliente, productos: [], total: 0 };
+            detalle.forEach(item => {
+                const clave = item.idVenta || (item.hora + item.nombre);
+                if (!agrupadas[clave]) {
+                    agrupadas[clave] = { idVenta: item.idVenta, hora: item.hora, pago: item.pago, cliente: item.cliente, productos: [], total: 0 };
                 }
-                agrupadas[it.idVenta].productos.push(it);
-                agrupadas[it.idVenta].total += Number(it.precio || 0);
+                agrupadas[clave].productos.push(item);
+                agrupadas[clave].total += Number(item.precio || 0);
             });
 
-            lista.innerHTML = Object.values(agrupadas).map(g => `
+            lista.innerHTML = Object.values(agrupadas).map(venta => `
                 <div class="card" style="border-color:var(--accent);">
-                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:5px; margin-bottom:8px;">
-                        <span style="color:var(--accent); font-weight:700;">🕒 ${g.hora}</span>
-                        <div style="display:flex; gap:15px;">
-                            <span onclick="prepararEdicion('${g.idVenta}')" style="cursor:pointer; font-size:16px;">✏️</span>
-                            <span onclick="confirmarEliminacion('${g.idVenta}')" style="cursor:pointer; font-size:16px;">🗑️</span>
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:6px; margin-bottom:8px;">
+                        <span style="color:var(--accent); font-weight:800;">🕒 ${escaparHtml(venta.hora)}</span>
+                        <div>
+                            <button class="btn-icono" onclick="prepararEdicion('${escaparAtributo(venta.idVenta)}')">✏️</button>
+                            <button class="btn-icono" onclick="confirmarEliminacion('${escaparAtributo(venta.idVenta)}')">🗑️</button>
                         </div>
                     </div>
-                    <div style="font-size:11px; color:#64748b; margin-bottom:5px;">${g.pago} ${g.cliente !== 'Venta Directa' ? '('+g.cliente+')' : ''}</div>
-                    ${g.productos.map(p => `<div style="display:flex; justify-content:space-between; font-size:14px;"><span>${p.nombre}</span><span>${formatoPesos(p.precio)}</span></div>`).join('')}
-                    <div style="text-align:right; border-top:1px dashed #1e293b; margin-top:8px; padding-top:5px; font-weight:800; color:var(--accent);">Total: ${formatoPesos(g.total)}</div>
-                </div>
-            `).join('');
-        }
-
-        function formatoPesos(valor) {
-            const n = Number(valor) || 0;
-            return `$${n.toLocaleString('es-CL')}`;
-        }
-
-        function renderReportes() {
-            document.getElementById('reporte-total-hoy').innerText = formatoPesos(datosServidor.totalHoy || 0);
-
-            const selector = document.getElementById('selector-mes-reportes');
-            const meses = datosServidor.mesesDisponibles || [];
-            const valorActual = selector.value;
-
-            if (meses.length === 0) {
-                selector.innerHTML = `<option value="">Sin meses disponibles</option>`;
-                document.getElementById('reporte-total-mes').innerText = formatoPesos(0);
-                document.getElementById('reporte-mejor-dia').innerText = "-";
-                document.getElementById('reporte-cantidad-ventas').innerText = "0";
-                document.getElementById('reporte-mes-titulo').innerText = "Sin datos";
-                document.getElementById('grafico-reportes-mes').innerHTML = "<p style='text-align:center; color:#64748b;'>Aún no hay ventas para graficar.</p>";
-                document.getElementById('lista-reportes-dia').innerHTML = "<p style='text-align:center; color:#64748b;'>Aún no hay información diaria.</p>";
-                document.getElementById('lista-reportes-mes').innerHTML = "<p style='text-align:center; color:#64748b;'>Aún no hay información mensual.</p>";
-                return;
-            }
-
-            selector.innerHTML = meses.map(m => `<option value="${m.valor}">${m.texto}</option>`).join('');
-            if (valorActual && meses.some(m => m.valor === valorActual)) {
-                selector.value = valorActual;
-            } else {
-                selector.value = meses[0].valor;
-            }
-
-            const mesElegido = selector.value;
-            const dataMes = (datosServidor.reportesPorMes && datosServidor.reportesPorMes[mesElegido]) || { dias: [], total: 0, cantidad: 0, items: 0, mes: "Mes" };
-            const dias = dataMes.dias || [];
-            const mejorDia = dataMes.mejorDia;
-
-            document.getElementById('reporte-total-mes').innerText = formatoPesos(dataMes.total || 0);
-            document.getElementById('reporte-mejor-dia').innerText = mejorDia ? mejorDia.dia : "-";
-            document.getElementById('reporte-cantidad-ventas').innerText = dataMes.cantidad || 0;
-            document.getElementById('reporte-mes-titulo').innerText = dataMes.mes || "Mes";
-
-            renderGraficoMes(dias);
-            renderDetalleDias(dias);
-            renderResumenMeses();
-        }
-
-        function renderGraficoMes(dias) {
-            const contenedor = document.getElementById('grafico-reportes-mes');
-            if (!dias || dias.length === 0) {
-                contenedor.innerHTML = "<p style='text-align:center; color:#64748b;'>Este mes no tiene ventas registradas.</p>";
-                return;
-            }
-
-            const maximo = Math.max(...dias.map(d => Number(d.total || 0)), 1);
-            contenedor.innerHTML = `
-                <div class="grafico-scroll">
-                    <div class="grafico-lateral">
-                        ${dias.map(d => {
-                            const porcentaje = Math.max((Number(d.total || 0) / maximo) * 100, 3);
-                            return `
-                                <div class="grafico-columna">
-                                    <div class="grafico-valor">${formatoPesos(d.total)}</div>
-                                    <div class="grafico-track-vertical">
-                                        <div class="grafico-fill-vertical" style="height:${porcentaje}%"></div>
-                                    </div>
-                                    <div class="grafico-dia">Día ${d.dia}</div>
-                                    <div class="grafico-cantidad">${d.cantidad || 0} venta(s)</div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-                <small class="grafico-ayuda">Desliza hacia los lados para ver todos los días del mes.</small>
-            `;
-        }
-
-        function renderDetalleDias(dias) {
-            const listaDia = document.getElementById('lista-reportes-dia');
-            if (!dias || dias.length === 0) {
-                listaDia.innerHTML = "<p style='text-align:center; color:#64748b;'>Este mes no tiene detalle diario.</p>";
-                return;
-            }
-
-            const diasOrdenados = [...dias].sort((a, b) => Number(b.total || 0) - Number(a.total || 0));
-
-            listaDia.innerHTML = diasOrdenados.map((r, index) => `
-                <div class="reporte-fila">
-                    <div>
-                        <strong>${index === 0 ? '🏆 ' : ''}${r.fecha}</strong><br>
-                        <small style="color:#64748b;">${r.cantidad || 0} venta(s) · ${r.items || 0} producto(s)</small>
-                    </div>
-                    <div class="reporte-monto">${formatoPesos(r.total)}</div>
-                </div>
-            `).join('');
-        }
-
-        function renderResumenMeses() {
-            const listaMes = document.getElementById('lista-reportes-mes');
-            const reportesMensuales = datosServidor.reportesMensuales || [];
-
-            if (!reportesMensuales || reportesMensuales.length === 0) {
-                listaMes.innerHTML = "<p style='text-align:center; color:#64748b;'>Aún no hay información mensual.</p>";
-                return;
-            }
-
-            listaMes.innerHTML = reportesMensuales.map(r => `
-                <div class="reporte-fila">
-                    <div>
-                        <strong>${r.mes}</strong><br>
-                        <small style="color:#64748b;">${r.cantidad || 0} venta(s) · ${r.items || 0} producto(s)</small>
-                    </div>
-                    <div class="reporte-monto">${formatoPesos(r.total)}</div>
+                    <div style="font-size:11px; color:#64748b; margin-bottom:6px;">${escaparHtml(venta.pago || '')} ${venta.cliente !== 'Venta Directa' ? '(' + escaparHtml(venta.cliente || '') + ')' : ''}</div>
+                    ${venta.productos.map(p => `<div style="display:flex; justify-content:space-between; font-size:14px;"><span>${escaparHtml(p.nombre)}</span><span>${formatoPesos(p.precio)}</span></div>`).join('')}
+                    <div style="text-align:right; border-top:1px dashed #1e293b; margin-top:8px; padding-top:6px; font-weight:900; color:var(--accent);">Total: ${formatoPesos(venta.total)}</div>
                 </div>
             `).join('');
         }
 
         function confirmarEliminacion(idVenta) {
-            if (confirm("¿Seguro que deseas eliminar esta venta por completo?")) {
-                document.getElementById('loader').style.display = 'flex';
-                fetch(urlScript, { 
-                    method: "POST", 
-                    mode: "no-cors", 
-                    body: JSON.stringify({ accion: "eliminar", idVenta: idVenta }) 
-                }).then(() => { mostrarNotificacion("VENTA ELIMINADA"); });
-            }
+            if (!idVenta || !confirm("¿Seguro que deseas eliminar esta venta por completo?")) return;
+            mostrarLoader("ELIMINANDO VENTA...");
+            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify({ accion: "eliminar", idVenta }) })
+                .then(() => mostrarNotificacion("VENTA ELIMINADA"));
         }
 
         function prepararEdicion(idVenta) {
-            const ventas = datosServidor.detalleHoy.filter(v => v.idVenta === idVenta);
-            if (ventas.length > 0) {
-                if (confirm("La venta se cargará de nuevo en el carrito para editarla. Se borrará la anterior para que no se duplique. ¿Continuar?")) {
-                    document.getElementById('loader').style.display = 'flex';
-                    carrito = ventas.map(v => ({ id: Date.now() + Math.random(), producto: v.nombre, precio: v.precio }));
-                    fetch(urlScript, { 
-                        method: "POST", 
-                        mode: "no-cors", 
-                        body: JSON.stringify({ accion: "eliminar", idVenta: idVenta }) 
-                    }).then(() => {
-                        actualizarVista();
-                        cambiarVista('vender');
-                        document.getElementById('loader').style.display = 'none';
-                        alert("Venta cargada. Modifícala y vuelve a finalizar.");
-                    });
-                }
-            }
+            const ventas = (datosServidor.detalleHoy || []).filter(v => v.idVenta === idVenta);
+            if (!ventas.length) return;
+            if (!confirm("La venta se cargará al carrito y se eliminará la anterior. ¿Continuar?")) return;
+
+            mostrarLoader("CARGANDO VENTA...");
+            carrito = ventas.map(v => ({ id: Date.now() + Math.random(), producto: v.nombre, precio: Number(v.precio || 0) }));
+
+            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify({ accion: "eliminar", idVenta }) })
+                .then(() => {
+                    actualizarVistaVenta();
+                    cambiarVista('vender');
+                    document.getElementById('loader').style.display = 'none';
+                    alert("Venta cargada. Modifícala y vuelve a finalizar.");
+                });
         }
 
-        function renderDeudores() {
-            const lista = document.getElementById('lista-deudores');
-            if (!datosServidor.deudores || datosServidor.deudores.length === 0) {
-                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Nadie debe nada.</p>";
+        // ---------------- COMPRAS ----------------
+        function calcularCompraDesdeTotal() {
+            const total = Math.max(Number(document.getElementById('compra-total').value || 0), 0);
+            const neto = total > 0 ? Math.round(total / 1.19) : 0;
+            const iva = total - neto;
+            return { neto, iva, total };
+        }
+
+        function guardarCompra() {
+            const proveedor = document.getElementById('compra-proveedor').value.trim();
+            const fecha = document.getElementById('compra-fecha').value || fechaLocalInput();
+            const calculo = calcularCompraDesdeTotal();
+
+            if (!proveedor) return alert("Indica dónde realizaste la compra.");
+            if (calculo.total <= 0) return alert("Ingresa el valor total de la compra.");
+
+            const compra = {
+                accion: "guardarCompra",
+                idCompra: compraEditandoId,
+                fecha: fecha,
+                proveedor: proveedor,
+                rut: "",
+                documento: "Factura afecta",
+                folio: "",
+                categoria: "Mercadería",
+                descripcion: "",
+                neto: calculo.neto,
+                iva: calculo.iva,
+                total: calculo.total,
+                creditoFiscal: "Sí",
+                pago: ""
+            };
+
+            mostrarLoader(compraEditandoId ? "ACTUALIZANDO COMPRA..." : "GUARDANDO COMPRA...");
+            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(compra) })
+                .then(() => mostrarNotificacion(compraEditandoId ? "COMPRA ACTUALIZADA" : "COMPRA GUARDADA"));
+        }
+
+        function renderCompras() {
+            document.getElementById('total-compras-hoy').innerText = formatoPesos(datosServidor.totalComprasHoy || 0);
+            const lista = document.getElementById('lista-compras');
+            const compras = datosServidor.comprasRecientes || [];
+
+            if (!compras.length) {
+                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Aún no hay compras registradas.</p>";
                 return;
             }
-            lista.innerHTML = datosServidor.deudores.map(d => `
-                <div class="item-fila" style="border: 1px solid var(--accent); margin-bottom:12px; padding:15px; border-radius:15px; background: rgba(6, 225, 240, 0.02); cursor:pointer;" 
-                     onclick="abrirModalCobro('${d.idVenta}', '${d.nombre}', ${d.monto})">
-                    <div style="flex-grow:1;">
-                        <strong style="font-size:18px; color:var(--text);">${d.nombre}</strong><br>
-                        <small style="color:#64748b;">📅 ${d.fecha} - 🕒 ${d.hora}</small>
+
+            lista.innerHTML = compras.map(compra => `
+                <div class="card compra-card">
+                    <div class="compra-cabecera">
+                        <div>
+                            <strong>${escaparHtml(compra.proveedor)}</strong><br>
+                            <small class="muted">${escaparHtml(compra.fecha)} · ${escaparHtml(compra.hora || '')}</small>
+                        </div>
+                        <div>
+                            <button class="btn-icono" onclick="editarCompra('${escaparAtributo(compra.idCompra)}')">✏️</button>
+                            <button class="btn-icono" onclick="eliminarCompra('${escaparAtributo(compra.idCompra)}')">🗑️</button>
+                        </div>
                     </div>
-                    <div style="text-align:right;">
-                        <strong style="color:var(--accent); font-size:22px;">${formatoPesos(d.monto)}</strong>
-                        <div style="font-size:10px; color:var(--accent); font-weight:bold;">TAP PARA PAGAR</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                        <small class="muted">Valor con IVA incluido</small>
+                        <strong style="color:var(--expense); font-size:22px;">${formatoPesos(compra.total)}</strong>
                     </div>
                 </div>
             `).join('');
         }
 
-        function abrirModalCobro(idVenta, nombre, monto) {
-            deudaSeleccionada = { idVenta, nombre, monto };
-            document.getElementById('info-deuda').innerText = `${nombre} pagará ${formatoPesos(monto)}`;
+        function editarCompra(idCompra) {
+            const compra = (datosServidor.comprasRecientes || []).find(c => c.idCompra === idCompra);
+            if (!compra) return alert("No se encontró la compra.");
+
+            compraEditandoId = idCompra;
+            document.getElementById('compra-fecha').value = compra.fechaInput || fechaLocalInput();
+            document.getElementById('compra-proveedor').value = compra.proveedor || '';
+            document.getElementById('compra-total').value = compra.total || '';
+            document.getElementById('btn-guardar-compra').innerText = "✅ ACTUALIZAR COMPRA";
+            document.getElementById('btn-cancelar-edicion-compra').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function eliminarCompra(idCompra) {
+            if (!confirm("¿Seguro que deseas eliminar esta compra?")) return;
+            mostrarLoader("ELIMINANDO COMPRA...");
+            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify({ accion: "eliminarCompra", idCompra }) })
+                .then(() => mostrarNotificacion("COMPRA ELIMINADA"));
+        }
+
+        function limpiarFormularioCompra() {
+            compraEditandoId = null;
+            document.getElementById('compra-fecha').value = fechaLocalInput();
+            document.getElementById('compra-proveedor').value = '';
+            document.getElementById('compra-total').value = '';
+            document.getElementById('btn-guardar-compra').innerText = "🧾 GUARDAR COMPRA";
+            document.getElementById('btn-cancelar-edicion-compra').style.display = 'none';
+        }
+
+        // ---------------- REPORTES ----------------
+        function renderReportes() {
+            const selector = document.getElementById('selector-mes-reportes');
+            const meses = datosServidor.mesesDisponibles || [];
+            const valorAnterior = selector.value;
+
+            if (!meses.length) {
+                selector.innerHTML = '<option value="">Sin meses disponibles</option>';
+                limpiarReporteSinDatos();
+                return;
+            }
+
+            selector.innerHTML = meses.map(m => `<option value="${escaparAtributo(m.valor)}">${escaparHtml(m.texto)}</option>`).join('');
+            selector.value = valorAnterior && meses.some(m => m.valor === valorAnterior) ? valorAnterior : meses[0].valor;
+
+            const mesElegido = selector.value;
+            const data = (datosServidor.reportesPorMes || {})[mesElegido];
+            if (!data) return limpiarReporteSinDatos();
+
+            document.getElementById('reporte-ingresos').innerText = formatoPesos(data.ingresos);
+            document.getElementById('reporte-egresos').innerText = formatoPesos(data.egresos);
+            document.getElementById('reporte-balance').innerText = formatoPesos(data.balance);
+            document.getElementById('reporte-balance').className = data.balance >= 0 ? 'texto-positivo' : 'texto-egreso';
+            document.getElementById('reporte-mejor-dia').innerText = data.mejorDia ? 'Día ' + data.mejorDia.dia : '-';
+            document.getElementById('reporte-iva-debito').innerText = formatoPesos(data.ivaDebitoEstimado);
+            document.getElementById('reporte-iva-credito').innerText = formatoPesos(data.ivaCredito);
+            document.getElementById('reporte-iva-pagar').innerText = formatoPesos(data.ivaPorPagarEstimado);
+            document.getElementById('reporte-cantidades').innerText = `${data.cantidadCompras || 0} / ${data.cantidadVentas || 0}`;
+            document.getElementById('reporte-mes-titulo').innerText = data.mes || 'Mes';
+
+            const tarjetaRemanente = document.getElementById('tarjeta-remanente');
+            if (Number(data.remanenteIvaEstimado || 0) > 0) {
+                tarjetaRemanente.style.display = 'block';
+                document.getElementById('reporte-remanente').innerText = formatoPesos(data.remanenteIvaEstimado);
+            } else {
+                tarjetaRemanente.style.display = 'none';
+            }
+
+            renderGraficoComparativo(data.dias || []);
+            renderDetalleDias(data.dias || []);
+            renderResumenMeses();
+        }
+
+        function limpiarReporteSinDatos() {
+            ['reporte-ingresos','reporte-egresos','reporte-balance','reporte-iva-debito','reporte-iva-credito','reporte-iva-pagar'].forEach(id => document.getElementById(id).innerText = '$0');
+            document.getElementById('reporte-mejor-dia').innerText = '-';
+            document.getElementById('reporte-cantidades').innerText = '0 / 0';
+            document.getElementById('reporte-mes-titulo').innerText = 'Sin datos';
+            document.getElementById('tarjeta-remanente').style.display = 'none';
+            document.getElementById('grafico-reportes-mes').innerHTML = "<p style='text-align:center; color:#64748b;'>Aún no hay datos para graficar.</p>";
+            document.getElementById('lista-reportes-dia').innerHTML = "<p style='text-align:center; color:#64748b;'>Sin detalle diario.</p>";
+            document.getElementById('lista-reportes-mes').innerHTML = "<p style='text-align:center; color:#64748b;'>Sin resumen mensual.</p>";
+        }
+
+        function renderGraficoComparativo(dias) {
+            const contenedor = document.getElementById('grafico-reportes-mes');
+            if (!dias.length) {
+                contenedor.innerHTML = "<p style='text-align:center; color:#64748b;'>Este mes no tiene movimientos registrados.</p>";
+                return;
+            }
+
+            const maximo = Math.max(...dias.map(d => Math.max(Number(d.ingresos || 0), Number(d.egresos || 0))), 1);
+
+            contenedor.innerHTML = `
+                <div class="grafico-scroll">
+                    <div class="grafico-lateral">
+                        ${dias.map(d => {
+                            const altoIngreso = Number(d.ingresos || 0) > 0 ? Math.max((Number(d.ingresos) / maximo) * 100, 3) : 0;
+                            const altoEgreso = Number(d.egresos || 0) > 0 ? Math.max((Number(d.egresos) / maximo) * 100, 3) : 0;
+                            return `
+                                <div class="grafico-grupo">
+                                    <div class="grafico-valores">
+                                        <span class="texto-ingreso">${formatoPesosCompacto(d.ingresos)}</span><br>
+                                        <span class="texto-egreso">${formatoPesosCompacto(d.egresos)}</span>
+                                    </div>
+                                    <div class="grafico-barras">
+                                        <div class="grafico-track"><div class="grafico-fill ingreso" style="height:${altoIngreso}%"></div></div>
+                                        <div class="grafico-track"><div class="grafico-fill egreso" style="height:${altoEgreso}%"></div></div>
+                                    </div>
+                                    <div class="grafico-dia">Día ${escaparHtml(d.dia)}</div>
+                                    <div class="grafico-cantidad">${d.cantidadVentas || 0} V · ${d.cantidadCompras || 0} C</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+                <small class="grafico-ayuda">Desliza hacia los lados para revisar todos los días.</small>
+            `;
+        }
+
+        function renderDetalleDias(dias) {
+            const lista = document.getElementById('lista-reportes-dia');
+            if (!dias.length) {
+                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Este mes no tiene movimientos.</p>";
+                return;
+            }
+
+            lista.innerHTML = [...dias].sort((a,b) => Number(b.ingresos || 0) - Number(a.ingresos || 0)).map((dia, index) => `
+                <div class="reporte-fila">
+                    <div>
+                        <strong>${index === 0 && Number(dia.ingresos || 0) > 0 ? '🏆 ' : ''}${escaparHtml(dia.fecha)}</strong><br>
+                        <small class="muted">${dia.cantidadVentas || 0} venta(s) · ${dia.cantidadCompras || 0} compra(s)</small>
+                    </div>
+                    <div class="montos-dia">
+                        <div class="texto-ingreso">+ ${formatoPesos(dia.ingresos)}</div>
+                        <div class="texto-egreso">− ${formatoPesos(dia.egresos)}</div>
+                        <strong class="${Number(dia.balance || 0) >= 0 ? 'texto-positivo' : 'texto-egreso'}">= ${formatoPesos(dia.balance)}</strong>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderResumenMeses() {
+            const lista = document.getElementById('lista-reportes-mes');
+            const meses = datosServidor.reportesMensuales || [];
+
+            if (!meses.length) {
+                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Aún no hay información mensual.</p>";
+                return;
+            }
+
+            lista.innerHTML = meses.map(mes => `
+                <div class="reporte-fila">
+                    <div>
+                        <strong>${escaparHtml(mes.mes)}</strong><br>
+                        <small class="muted">${mes.cantidadVentas || 0} venta(s) · ${mes.cantidadCompras || 0} compra(s)</small>
+                    </div>
+                    <div class="montos-dia">
+                        <div class="texto-ingreso">${formatoPesos(mes.ingresos)}</div>
+                        <div class="texto-egreso">${formatoPesos(mes.egresos)}</div>
+                        <strong class="${Number(mes.balance || 0) >= 0 ? 'texto-positivo' : 'texto-egreso'}">${formatoPesos(mes.balance)}</strong>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ---------------- DEUDORES ----------------
+        function renderDeudores() {
+            const lista = document.getElementById('lista-deudores');
+            const deudores = datosServidor.deudores || [];
+
+            if (!deudores.length) {
+                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Nadie debe nada.</p>";
+                return;
+            }
+
+            lista.innerHTML = deudores.map((deuda, index) => `
+                <div class="item-fila" style="border:1px solid var(--accent); margin-bottom:12px; padding:15px; border-radius:15px; background:rgba(6,225,240,.02); cursor:pointer;" onclick="abrirModalCobro(${index})">
+                    <div style="flex-grow:1;">
+                        <strong style="font-size:18px;">${escaparHtml(deuda.nombre)}</strong><br>
+                        <small class="muted">📅 ${escaparHtml(deuda.fecha)} · 🕒 ${escaparHtml(deuda.hora)}</small>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong style="color:var(--accent); font-size:21px;">${formatoPesos(deuda.monto)}</strong>
+                        <div style="font-size:9px; color:var(--accent); font-weight:900;">TOCAR PARA PAGAR</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function abrirModalCobro(index) {
+            const deuda = (datosServidor.deudores || [])[index];
+            if (!deuda) return;
+            deudaSeleccionada = deuda;
+            document.getElementById('info-deuda').innerText = `${deuda.nombre} pagará ${formatoPesos(deuda.monto)}`;
             document.getElementById('modal-cobro').style.display = 'block';
         }
 
         function procesarCobro() {
-            const vend = document.getElementById('vendedor-cobro').value;
-            if (!vend) return alert("Escribe quién recibe el dinero");
-            document.getElementById('loader').style.display = 'flex';
+            const vendedor = document.getElementById('vendedor-cobro').value.trim();
+            if (!vendedor) return alert("Escribe quién recibe el dinero.");
+            if (!deudaSeleccionada) return;
+
+            mostrarLoader("REGISTRANDO PAGO...");
             document.getElementById('modal-cobro').style.display = 'none';
-            const pack = { 
-                accion: "cobrar", 
-                idVenta: deudaSeleccionada.idVenta, 
-                vendedor: vend, 
-                cliente: deudaSeleccionada.nombre, 
-                monto: deudaSeleccionada.monto 
+
+            const datos = {
+                accion: "cobrar",
+                idVenta: deudaSeleccionada.idVenta,
+                vendedor,
+                cliente: deudaSeleccionada.nombre,
+                monto: deudaSeleccionada.monto
             };
-            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(pack) })
-            .then(() => { mostrarNotificacion("PAGO REGISTRADO"); });
+
+            fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(datos) })
+                .then(() => mostrarNotificacion("PAGO REGISTRADO"));
+        }
+
+        // ---------------- NAVEGACIÓN Y UTILIDADES ----------------
+        function cambiarVista(vista) {
+            ['vender','bitacora','compras','deudores','reportes'].forEach(nombre => {
+                document.getElementById('vista-' + nombre).style.display = nombre === vista ? 'block' : 'none';
+            });
+            document.querySelectorAll('.nav-item').forEach(boton => boton.classList.remove('active'));
+            document.getElementById('btn-nav-' + vista).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function formatoPesos(valor) {
+            return `$${Math.round(Number(valor) || 0).toLocaleString('es-CL')}`;
+        }
+
+        function formatoPesosCompacto(valor) {
+            const numero = Number(valor) || 0;
+            if (numero >= 1000000) return '$' + (numero / 1000000).toFixed(numero >= 10000000 ? 0 : 1).replace('.', ',') + 'M';
+            if (numero >= 1000) return '$' + Math.round(numero / 1000) + 'K';
+            return formatoPesos(numero);
+        }
+
+        function fechaLocalInput() {
+            const hoy = new Date();
+            const offset = hoy.getTimezoneOffset();
+            return new Date(hoy.getTime() - offset * 60000).toISOString().slice(0,10);
+        }
+
+        function escaparHtml(valor) {
+            return String(valor ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function escaparAtributo(valor) {
+            return escaparHtml(valor).replace(/`/g, '&#096;');
         }
     </script>
 </body>
