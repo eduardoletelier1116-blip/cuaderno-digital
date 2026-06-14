@@ -109,10 +109,10 @@
         .grafico-scroll::-webkit-scrollbar { height: 6px; }
         .grafico-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 999px; }
         .grafico-lateral { display: flex; align-items: flex-end; gap: 12px; min-width: max-content; height: 245px; padding: 8px 2px 2px; }
-        .grafico-grupo { width: 84px; height: 235px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 0 0 auto; }
+        .grafico-grupo { width: 64px; height: 235px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 0 0 auto; }
         .grafico-valores { min-height: 37px; font-size: 9px; font-weight: 800; line-height: 1.35; text-align: center; margin-bottom: 5px; }
         .grafico-barras { height: 145px; display: flex; align-items: flex-end; gap: 7px; }
-        .grafico-track { width: 25px; height: 145px; background: #111827; border-radius: 999px; overflow: hidden; border: 1px solid #1e293b; display: flex; align-items: flex-end; }
+        .grafico-track { width: 34px; height: 145px; background: #111827; border-radius: 999px; overflow: hidden; border: 1px solid #1e293b; display: flex; align-items: flex-end; }
         .grafico-fill { width: 100%; min-height: 3px; border-radius: 999px 999px 0 0; }
         .grafico-fill.ingreso { background: var(--accent); box-shadow: 0 0 10px rgba(6,225,240,.25); }
         .grafico-fill.egreso { background: var(--expense); box-shadow: 0 0 10px rgba(255,107,107,.2); }
@@ -213,13 +213,15 @@
 
         <!-- REPORTES -->
         <div class="container" id="vista-reportes" style="display:none;">
-            <h2 style="color:var(--accent); margin-bottom:10px;">Ingresos y Egresos</h2>
+            <h2 style="color:var(--accent); margin-bottom:10px;">Reporte Mensual</h2>
 
             <div class="card">
                 <label for="selector-mes-reportes">Seleccionar mes</label>
                 <select id="selector-mes-reportes" onchange="renderReportes()"></select>
-                <small class="muted">Compara ventas y compras registradas en la aplicación.</small>
+                <small class="muted">El comparativo de ingresos y egresos corresponde al total general del mes seleccionado.</small>
             </div>
+
+            <h3 style="margin:4px 0 12px; color:#fff;">Resumen general del mes</h3>
 
             <div class="reporte-grid">
                 <div class="reporte-kpi ingreso"><small>Ingresos</small><div class="texto-ingreso" id="reporte-ingresos">$0</div></div>
@@ -239,18 +241,17 @@
 
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px;">
-                    <h3 style="margin:0; color:var(--accent);">📊 Comparativo diario</h3>
+                    <h3 style="margin:0; color:var(--accent);">📊 Ventas diarias</h3>
                     <span class="pill" id="reporte-mes-titulo">Mes</span>
                 </div>
                 <div id="grafico-reportes-mes"></div>
                 <div class="leyenda">
-                    <span><i class="l-ingreso"></i> Ingresos</span>
-                    <span><i class="l-egreso"></i> Egresos</span>
+                    <span><i class="l-ingreso"></i> Ventas</span>
                 </div>
             </div>
 
             <div class="card">
-                <h3 style="margin-top:0; color:var(--accent);">📅 Detalle por día</h3>
+                <h3 style="margin-top:0; color:var(--accent);">📅 Detalle diario de ventas</h3>
                 <div id="lista-reportes-dia"></div>
             </div>
 
@@ -618,67 +619,68 @@
             document.getElementById('reporte-cantidades').innerText = '0 / 0';
             document.getElementById('reporte-mes-titulo').innerText = 'Sin datos';
             document.getElementById('tarjeta-remanente').style.display = 'none';
-            document.getElementById('grafico-reportes-mes').innerHTML = "<p style='text-align:center; color:#64748b;'>Aún no hay datos para graficar.</p>";
-            document.getElementById('lista-reportes-dia').innerHTML = "<p style='text-align:center; color:#64748b;'>Sin detalle diario.</p>";
+            document.getElementById('grafico-reportes-mes').innerHTML = "<p style='text-align:center; color:#64748b;'>Aún no hay ventas para graficar.</p>";
+            document.getElementById('lista-reportes-dia').innerHTML = "<p style='text-align:center; color:#64748b;'>Sin ventas diarias.</p>";
             document.getElementById('lista-reportes-mes').innerHTML = "<p style='text-align:center; color:#64748b;'>Sin resumen mensual.</p>";
         }
 
         function renderGraficoComparativo(dias) {
             const contenedor = document.getElementById('grafico-reportes-mes');
-            if (!dias.length) {
-                contenedor.innerHTML = "<p style='text-align:center; color:#64748b;'>Este mes no tiene movimientos registrados.</p>";
+            const diasConVentas = dias.filter(d => Number(d.ingresos || 0) > 0);
+
+            if (!diasConVentas.length) {
+                contenedor.innerHTML = "<p style='text-align:center; color:#64748b;'>Este mes no tiene ventas registradas.</p>";
                 return;
             }
 
-            const maximo = Math.max(...dias.map(d => Math.max(Number(d.ingresos || 0), Number(d.egresos || 0))), 1);
+            const maximo = Math.max(...diasConVentas.map(d => Number(d.ingresos || 0)), 1);
 
             contenedor.innerHTML = `
                 <div class="grafico-scroll">
                     <div class="grafico-lateral">
-                        ${dias.map(d => {
-                            const altoIngreso = Number(d.ingresos || 0) > 0 ? Math.max((Number(d.ingresos) / maximo) * 100, 3) : 0;
-                            const altoEgreso = Number(d.egresos || 0) > 0 ? Math.max((Number(d.egresos) / maximo) * 100, 3) : 0;
+                        ${diasConVentas.map(d => {
+                            const altoIngreso = Math.max((Number(d.ingresos || 0) / maximo) * 100, 3);
                             return `
                                 <div class="grafico-grupo">
                                     <div class="grafico-valores">
-                                        <span class="texto-ingreso">${formatoPesosCompacto(d.ingresos)}</span><br>
-                                        <span class="texto-egreso">${formatoPesosCompacto(d.egresos)}</span>
+                                        <span class="texto-ingreso">${formatoPesosCompacto(d.ingresos)}</span>
                                     </div>
                                     <div class="grafico-barras">
                                         <div class="grafico-track"><div class="grafico-fill ingreso" style="height:${altoIngreso}%"></div></div>
-                                        <div class="grafico-track"><div class="grafico-fill egreso" style="height:${altoEgreso}%"></div></div>
                                     </div>
                                     <div class="grafico-dia">Día ${escaparHtml(d.dia)}</div>
-                                    <div class="grafico-cantidad">${d.cantidadVentas || 0} V · ${d.cantidadCompras || 0} C</div>
+                                    <div class="grafico-cantidad">${d.cantidadVentas || 0} venta(s)</div>
                                 </div>
                             `;
                         }).join('')}
                     </div>
                 </div>
-                <small class="grafico-ayuda">Desliza hacia los lados para revisar todos los días.</small>
+                <small class="grafico-ayuda">Desliza hacia los lados para revisar las ventas de cada día.</small>
             `;
         }
 
         function renderDetalleDias(dias) {
             const lista = document.getElementById('lista-reportes-dia');
-            if (!dias.length) {
-                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Este mes no tiene movimientos.</p>";
+            const diasConVentas = dias.filter(d => Number(d.ingresos || 0) > 0);
+
+            if (!diasConVentas.length) {
+                lista.innerHTML = "<p style='text-align:center; color:#64748b;'>Este mes no tiene ventas registradas.</p>";
                 return;
             }
 
-            lista.innerHTML = [...dias].sort((a,b) => Number(b.ingresos || 0) - Number(a.ingresos || 0)).map((dia, index) => `
-                <div class="reporte-fila">
-                    <div>
-                        <strong>${index === 0 && Number(dia.ingresos || 0) > 0 ? '🏆 ' : ''}${escaparHtml(dia.fecha)}</strong><br>
-                        <small class="muted">${dia.cantidadVentas || 0} venta(s) · ${dia.cantidadCompras || 0} compra(s)</small>
+            lista.innerHTML = [...diasConVentas]
+                .sort((a,b) => Number(b.ingresos || 0) - Number(a.ingresos || 0))
+                .map((dia, index) => `
+                    <div class="reporte-fila">
+                        <div>
+                            <strong>${index === 0 ? '🏆 ' : ''}${escaparHtml(dia.fecha)}</strong><br>
+                            <small class="muted">${dia.cantidadVentas || 0} venta(s)</small>
+                        </div>
+                        <div class="montos-dia">
+                            <strong class="texto-ingreso">${formatoPesos(dia.ingresos)}</strong>
+                        </div>
                     </div>
-                    <div class="montos-dia">
-                        <div class="texto-ingreso">+ ${formatoPesos(dia.ingresos)}</div>
-                        <div class="texto-egreso">− ${formatoPesos(dia.egresos)}</div>
-                        <strong class="${Number(dia.balance || 0) >= 0 ? 'texto-positivo' : 'texto-egreso'}">= ${formatoPesos(dia.balance)}</strong>
-                    </div>
-                </div>
-            `).join('');
+                `).join('');
         }
 
         function renderResumenMeses() {
