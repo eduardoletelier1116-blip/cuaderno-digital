@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FastBook Pro</title>
+    <title>FastBook Pro - Ventas y Boletas</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -69,6 +69,15 @@
         .btn-secundario { width: 100%; padding: 13px; background: #1e293b; color: #fff; border: 1px solid var(--border); border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 8px; }
         .btn-icono { border: none; background: none; color: white; font-size: 17px; cursor: pointer; padding: 5px; }
         .btn-pago { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border); background: #1e293b; color: white; font-weight: 700; text-align: left; }
+
+        .boleta-opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 18px; }
+        .btn-boleta { padding: 14px 8px; border-radius: 12px; border: 1px solid var(--border); background: #111827; color: #fff; font-weight: 900; cursor: pointer; }
+        .btn-boleta.activo-si { border-color: var(--positive); color: var(--positive); background: rgba(69,229,138,.08); }
+        .btn-boleta.activo-no { border-color: var(--expense); color: var(--expense); background: rgba(255,107,107,.08); }
+        .tag-boleta { display: inline-block; font-size: 9px; font-weight: 900; border-radius: 999px; padding: 4px 7px; margin-left: 5px; }
+        .tag-boleta.con { color: var(--positive); border: 1px solid rgba(69,229,138,.5); }
+        .tag-boleta.sin { color: var(--expense); border: 1px solid rgba(255,107,107,.5); }
+        .tag-boleta.desconocida { color: var(--warning); border: 1px solid rgba(251,191,36,.5); }
 
         .nav-bottom { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 9px 2px; z-index: 2000; }
         .nav-item { flex: 1; background: none; border: none; color: #475569; font-size: 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; cursor: pointer; min-width: 0; }
@@ -217,16 +226,20 @@
             <div class="card">
                 <label for="selector-mes-reportes">Seleccionar mes</label>
                 <select id="selector-mes-reportes" onchange="renderReportes()"></select>
-                <small class="muted">El comparativo de ingresos y egresos corresponde al total general del mes seleccionado.</small>
+                <small class="muted">El resumen separa las ventas reales, las ventas con boleta y las compras del mes seleccionado.</small>
             </div>
 
             <h3 style="margin:4px 0 12px; color:#fff;">Resumen general del mes</h3>
 
             <div class="reporte-grid">
-                <div class="reporte-kpi ingreso"><small>Ingresos</small><div class="texto-ingreso" id="reporte-ingresos">$0</div></div>
-                <div class="reporte-kpi egreso"><small>Egresos</small><div class="texto-egreso" id="reporte-egresos">$0</div></div>
-                <div class="reporte-kpi balance"><small>Balance</small><div class="texto-positivo" id="reporte-balance">$0</div></div>
+                <div class="reporte-kpi ingreso"><small>Ventas reales</small><div class="texto-ingreso" id="reporte-ventas-reales">$0</div></div>
+                <div class="reporte-kpi ingreso"><small>Ventas con boleta</small><div class="texto-ingreso" id="reporte-ventas-boleta">$0</div></div>
+                <div class="reporte-kpi egreso"><small>Ventas sin boleta</small><div class="texto-egreso" id="reporte-ventas-sin-boleta">$0</div></div>
+                <div class="reporte-kpi egreso"><small>Compras</small><div class="texto-egreso" id="reporte-compras">$0</div></div>
+                <div class="reporte-kpi balance"><small>Balance real</small><div class="texto-positivo" id="reporte-balance-real">$0</div></div>
+                <div class="reporte-kpi balance"><small>Balance con boleta</small><div class="texto-positivo" id="reporte-balance-boleta">$0</div></div>
                 <div class="reporte-kpi"><small>Mejor día venta</small><div id="reporte-mejor-dia">-</div></div>
+                <div class="reporte-kpi"><small>Histórico sin dato</small><div class="texto-warning" id="reporte-ventas-sin-registro">$0</div></div>
                 <div class="reporte-kpi iva"><small>IVA débito est.</small><div class="texto-warning" id="reporte-iva-debito">$0</div></div>
                 <div class="reporte-kpi iva"><small>IVA crédito</small><div class="texto-warning" id="reporte-iva-credito">$0</div></div>
                 <div class="reporte-kpi iva"><small>IVA por pagar est.</small><div class="texto-warning" id="reporte-iva-pagar">$0</div></div>
@@ -260,7 +273,7 @@
             </div>
 
             <div class="card" style="border-style:dashed;">
-                <small class="muted">El cálculo de IVA es una estimación interna: supone que las ventas registradas incluyen IVA de 19% y solo descuenta compras marcadas como crédito fiscal.</small>
+                <small class="muted">Control interno: el gráfico diario muestra la venta real. El balance con boleta usa solo ventas marcadas “Con boleta”. El IVA estimado considera todas las ventas afectas registradas, incluso las marcadas “Sin boleta”, y descuenta el IVA de las compras registradas.</small>
             </div>
         </div>
     </div>
@@ -268,7 +281,15 @@
     <!-- MODALES -->
     <div id="modal-pago" class="modal">
         <div class="modal-content">
-            <h3 style="margin-top:0;">Método de Pago</h3>
+            <h3 style="margin-top:0;">Cerrar venta</h3>
+
+            <label>¿Se emitió boleta?</label>
+            <div class="boleta-opciones">
+                <button type="button" class="btn-boleta" id="btn-boleta-si" onclick="seleccionarBoleta('Con boleta')">🧾 Con boleta</button>
+                <button type="button" class="btn-boleta" id="btn-boleta-no" onclick="seleccionarBoleta('Sin boleta')">⚠️ Sin boleta</button>
+            </div>
+
+            <label>Método de pago</label>
             <button class="btn-pago" onclick="finalizarVenta('Efectivo')">💵 Efectivo</button>
             <button class="btn-pago" onclick="finalizarVenta('Tarjeta')">💳 Tarjeta</button>
             <button class="btn-pago" onclick="document.getElementById('seccion-fiado').style.display='block'">📝 Fiado</button>
@@ -276,6 +297,7 @@
                 <input type="text" id="nombre-cliente" placeholder="Nombre del cliente...">
                 <button class="btn-principal" onclick="finalizarVenta('Fiado')">GUARDAR DEUDA</button>
             </div>
+            <small class="muted" style="display:block; margin-top:10px;">Las ventas marcadas “Sin boleta” quedarán igualmente registradas y visibles en el reporte.</small>
             <button onclick="cerrarModal()" style="width:100%; background:none; border:none; color:#64748b; margin-top:15px;">Cancelar</button>
         </div>
     </div>
@@ -300,6 +322,7 @@
 
     <script>
         let carrito = [];
+        let estadoBoletaSeleccionado = null;
         let compraEditandoId = null;
         let deudaSeleccionada = null;
         let datosServidor = {
@@ -308,7 +331,7 @@
             reportesMensuales: [], mesesDisponibles: [], reportesPorMes: {}
         };
 
-        const urlScript = "https://script.google.com/macros/s/AKfycby65dI4wDC0tecG06Hgrix_upQ5FInEt8vNVxbPRKy2IGTQAy_ntH3oZFxz90jlTcXhog/exec";
+        const urlScript = "https://script.google.com/macros/s/AKfycbx15WuzAsomFY4zb33J-HZFfc4bQyYT2rg09fHWtaYRoyQrXOceE7UWSzvZ02xs0TpLBA/exec";
 
         window.onload = function() {
             document.getElementById('compra-fecha').value = fechaLocalInput();
@@ -387,25 +410,49 @@
             eliminarItem(id);
         }
 
-        function abrirCierreVenta() { document.getElementById('modal-pago').style.display = 'block'; }
+        function abrirCierreVenta() {
+            estadoBoletaSeleccionado = null;
+            actualizarBotonesBoleta();
+            document.getElementById('modal-pago').style.display = 'block';
+        }
+
+        function seleccionarBoleta(estado) {
+            estadoBoletaSeleccionado = estado;
+            actualizarBotonesBoleta();
+        }
+
+        function actualizarBotonesBoleta() {
+            const btnSi = document.getElementById('btn-boleta-si');
+            const btnNo = document.getElementById('btn-boleta-no');
+            if (!btnSi || !btnNo) return;
+            btnSi.className = 'btn-boleta' + (estadoBoletaSeleccionado === 'Con boleta' ? ' activo-si' : '');
+            btnNo.className = 'btn-boleta' + (estadoBoletaSeleccionado === 'Sin boleta' ? ' activo-no' : '');
+        }
+
         function cerrarModal() {
             document.getElementById('modal-pago').style.display = 'none';
             document.getElementById('seccion-fiado').style.display = 'none';
+            document.getElementById('nombre-cliente').value = '';
+            estadoBoletaSeleccionado = null;
+            actualizarBotonesBoleta();
         }
 
         function finalizarVenta(metodo) {
             const cliente = metodo === 'Fiado' ? document.getElementById('nombre-cliente').value.trim() : 'Venta Directa';
             if (!carrito.length) return alert("No hay productos en la venta.");
+            if (!estadoBoletaSeleccionado) return alert("Indica si la venta fue con boleta o sin boleta.");
             if (metodo === 'Fiado' && !cliente) return alert("Ingresa el nombre del cliente.");
 
+            const boletaVenta = estadoBoletaSeleccionado;
             mostrarLoader("GUARDANDO VENTA...");
-            cerrarModal();
+            document.getElementById('modal-pago').style.display = 'none';
 
             const datosVenta = {
                 items: carrito,
                 total: carrito.reduce((s, item) => s + Number(item.precio || 0), 0),
                 pago: metodo,
-                cliente: cliente
+                cliente: cliente,
+                boleta: boletaVenta
             };
 
             fetch(urlScript, { method: "POST", mode: "no-cors", body: JSON.stringify(datosVenta) })
@@ -426,7 +473,7 @@
             detalle.forEach(item => {
                 const clave = item.idVenta || (item.hora + item.nombre);
                 if (!agrupadas[clave]) {
-                    agrupadas[clave] = { idVenta: item.idVenta, hora: item.hora, pago: item.pago, cliente: item.cliente, productos: [], total: 0 };
+                    agrupadas[clave] = { idVenta: item.idVenta, hora: item.hora, pago: item.pago, cliente: item.cliente, boleta: item.boleta || 'Sin registro', productos: [], total: 0 };
                 }
                 agrupadas[clave].productos.push(item);
                 agrupadas[clave].total += Number(item.precio || 0);
@@ -441,7 +488,10 @@
                             <button class="btn-icono" onclick="confirmarEliminacion('${escaparAtributo(venta.idVenta)}')">🗑️</button>
                         </div>
                     </div>
-                    <div style="font-size:11px; color:#64748b; margin-bottom:6px;">${escaparHtml(venta.pago || '')} ${venta.cliente !== 'Venta Directa' ? '(' + escaparHtml(venta.cliente || '') + ')' : ''}</div>
+                    <div style="font-size:11px; color:#64748b; margin-bottom:6px;">
+                        ${escaparHtml(venta.pago || '')} ${venta.cliente !== 'Venta Directa' ? '(' + escaparHtml(venta.cliente || '') + ')' : ''}
+                        <span class="tag-boleta ${claseBoleta(venta.boleta)}">${escaparHtml(venta.boleta || 'Sin registro')}</span>
+                    </div>
                     ${venta.productos.map(p => `<div style="display:flex; justify-content:space-between; font-size:14px;"><span>${escaparHtml(p.nombre)}</span><span>${formatoPesos(p.precio)}</span></div>`).join('')}
                     <div style="text-align:right; border-top:1px dashed #1e293b; margin-top:8px; padding-top:6px; font-weight:900; color:var(--accent);">Total: ${formatoPesos(venta.total)}</div>
                 </div>
@@ -588,10 +638,15 @@
             const data = (datosServidor.reportesPorMes || {})[mesElegido];
             if (!data) return limpiarReporteSinDatos();
 
-            document.getElementById('reporte-ingresos').innerText = formatoPesos(data.ingresos);
-            document.getElementById('reporte-egresos').innerText = formatoPesos(data.egresos);
-            document.getElementById('reporte-balance').innerText = formatoPesos(data.balance);
-            document.getElementById('reporte-balance').className = data.balance >= 0 ? 'texto-positivo' : 'texto-egreso';
+            document.getElementById('reporte-ventas-reales').innerText = formatoPesos(data.ventasReales ?? data.ingresos);
+            document.getElementById('reporte-ventas-boleta').innerText = formatoPesos(data.ventasConBoleta);
+            document.getElementById('reporte-ventas-sin-boleta').innerText = formatoPesos(data.ventasSinBoleta);
+            document.getElementById('reporte-ventas-sin-registro').innerText = formatoPesos(data.ventasSinRegistro);
+            document.getElementById('reporte-compras').innerText = formatoPesos(data.compras ?? data.egresos);
+            document.getElementById('reporte-balance-real').innerText = formatoPesos(data.balanceReal ?? data.balance);
+            document.getElementById('reporte-balance-real').className = Number(data.balanceReal ?? data.balance) >= 0 ? 'texto-positivo' : 'texto-egreso';
+            document.getElementById('reporte-balance-boleta').innerText = formatoPesos(data.balanceConBoleta);
+            document.getElementById('reporte-balance-boleta').className = Number(data.balanceConBoleta || 0) >= 0 ? 'texto-positivo' : 'texto-egreso';
             document.getElementById('reporte-mejor-dia').innerText = data.mejorDia ? 'Día ' + data.mejorDia.dia : '-';
             document.getElementById('reporte-iva-debito').innerText = formatoPesos(data.ivaDebitoEstimado);
             document.getElementById('reporte-iva-credito').innerText = formatoPesos(data.ivaCredito);
@@ -613,7 +668,7 @@
         }
 
         function limpiarReporteSinDatos() {
-            ['reporte-ingresos','reporte-egresos','reporte-balance','reporte-iva-debito','reporte-iva-credito','reporte-iva-pagar'].forEach(id => document.getElementById(id).innerText = '$0');
+            ['reporte-ventas-reales','reporte-ventas-boleta','reporte-ventas-sin-boleta','reporte-ventas-sin-registro','reporte-compras','reporte-balance-real','reporte-balance-boleta','reporte-iva-debito','reporte-iva-credito','reporte-iva-pagar'].forEach(id => document.getElementById(id).innerText = '$0');
             document.getElementById('reporte-mejor-dia').innerText = '-';
             document.getElementById('reporte-cantidades').innerText = '0 / 0';
             document.getElementById('reporte-mes-titulo').innerText = 'Sin datos';
@@ -695,9 +750,10 @@
                         <small class="muted">${mes.cantidadVentas || 0} venta(s) · ${mes.cantidadCompras || 0} compra(s)</small>
                     </div>
                     <div class="montos-dia">
-                        <div class="texto-ingreso">${formatoPesos(mes.ingresos)}</div>
-                        <div class="texto-egreso">${formatoPesos(mes.egresos)}</div>
-                        <strong class="${Number(mes.balance || 0) >= 0 ? 'texto-positivo' : 'texto-egreso'}">${formatoPesos(mes.balance)}</strong>
+                        <div class="texto-ingreso">Real: ${formatoPesos(mes.ventasReales ?? mes.ingresos)}</div>
+                        <div class="texto-ingreso">Boleta: ${formatoPesos(mes.ventasConBoleta)}</div>
+                        <div class="texto-egreso">Compras: ${formatoPesos(mes.compras ?? mes.egresos)}</div>
+                        <strong class="${Number(mes.balanceReal ?? mes.balance) >= 0 ? 'texto-positivo' : 'texto-egreso'}">Balance: ${formatoPesos(mes.balanceReal ?? mes.balance)}</strong>
                     </div>
                 </div>
             `).join('');
@@ -763,6 +819,12 @@
             document.querySelectorAll('.nav-item').forEach(boton => boton.classList.remove('active'));
             document.getElementById('btn-nav-' + vista).classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function claseBoleta(estado) {
+            if (estado === 'Con boleta') return 'con';
+            if (estado === 'Sin boleta') return 'sin';
+            return 'desconocida';
         }
 
         function formatoPesos(valor) {
